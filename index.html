@@ -686,102 +686,339 @@
     </div>
 </div>
 
-<audio id="musicPlayer" preload="auto" crossorigin></audio>
+<audio id="audioPlayer" preload="auto"></audio>
 
 <script>
-    // ==================== CONFIGURAÇÃO ====================
-    const CONFIG = {
-        WHATSAPP_NUMBER: '5512988461978',
-        SITE_URL: 'https://oticassaomiguel.com.br/',
-        VOLUME_PLAYER: 0.9,
-        ANUNCIO_INICIAL: 'as.m4a',
-        ANUNCIO_SEQUENCIA: 'sa.m4a'
-    };
-
-    // ==================== PLAYLIST COMPLETA ====================
-    const PLAYLIST = [
-        { id: 1, title: "Billie Jean", artist: "Michael Jackson", src: "Billie_Jean_muzzik.m4a", genero: "POP" },
-        { id: 2, title: "Torn", artist: "Natalie Imbruglia", src: "Torn_muzzik.m4a", genero: "POP" },
-        { id: 3, title: "Sunrise", artist: "Simply Red", src: "Sunrise_muzzik.m4a", genero: "POP" },
-        { id: 4, title: "Hips Don't Lie", artist: "Shakira", src: "Hips_Don_t_Lie_muzzik.m4a", genero: "POP" },
-        { id: 5, title: "Haven't Met You Yet", artist: "Michael Bublé", src: "Haven_t_Met_You_Yet_muzzik.m4a", genero: "POP" },
-        { id: 6, title: "It Ain't Over", artist: "Lenny Kravitz", src: "It_Ain_t_Over_Til_It_s_Over_muzzik.m4a", genero: "POP" },
-        { id: 7, title: "Down Under", artist: "Arthur Rodrigues", src: "Down_Under_muzzik.m4a", genero: "POP" },
-        { id: 8, title: "Love Come Down", artist: "Evelyn King", src: "Love_Come_Down_muzzik.m4a", genero: "POP" },
-        { id: 9, title: "Sultans of Swing", artist: "Dire Straits", src: "Sultans_of_Swing_muzzik.m4a", genero: "POP" },
-        { id: 10, title: "Destilado", artist: "Ludmilla", src: "LUDMILLA_Destilado_muzzik.m4a", genero: "PAGODE" },
-        { id: 11, title: "Telepatia", artist: "Ferrugem", src: "Ferrugem_Telepatia_part_Thiaguinho_muzzik.m4a", genero: "PAGODE" },
-        { id: 12, title: "Champanhe", artist: "Grupo Menos Mais", src: "Grupo_Menos_Mais_Champanhe_muzzik.m4a", genero: "PAGODE" },
-        { id: 13, title: "Lance Livre", artist: "Kamisa 10", src: "Kamisa_10_-_Lance_Livre_NA_VIBE_DO_K10.mp3", genero: "PAGODE" },
-        { id: 14, title: "KIiko no Pagode", artist: "KIiko", src: "KIiko_no_Pagode.m4a", genero: "PAGODE" },
-        { id: 15, title: "Seu Brilho Sumiu", artist: "Israel & Rodolffo", src: "Israel_Rodolffo_MariFernandez_-_Seu_Brilho_Sumiu.mp3", genero: "SERTANEJO" },
-        { id: 16, title: "Desbloqueado", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_-_Desbloqueado.mp3", genero: "SERTANEJO" },
-        { id: 17, title: "Vontade de Prestar", artist: "Nattan", src: "Nattan_Vontade_de_Prestar_muzzik.m4a", genero: "SERTANEJO" },
-        { id: 18, title: "Até Você Voltar", artist: "Marília Mendonça", src: "Mar_lia_Mendon_a_At_Voc_Voltar_muzzik.m4a", genero: "SERTANEJO" },
-        { id: 19, title: "Retrovisor", artist: "Gusttavo Lima", src: "Gusttavo_Lima_Retrovisor_DVD_muzzik.m4a", genero: "SERTANEJO" },
-        { id: 20, title: "Que Era Eu", artist: "Lauana Prado", src: "LAUANA_PRADO_QUE_ERA_EU_UM_DIA_DE_DOMINGO.m4a", genero: "SERTANEJO" },
-        { id: 21, title: "A Tal Canção Pra Lua", artist: "Vitor Kley", src: "Vitor_Kley_Samuel_Rosa_A_Tal_Can_o_Pra_Lua_muzzik.m4a", genero: "MPB" },
-        { id: 22, title: "A Namorada", artist: "Carlinhos Brown", src: "A_Namorada_A_Namorada_Carlinhos_Brown_muzzik.m4a", genero: "MPB" },
-        { id: 23, title: "Sorri Sou Rei", artist: "Natiruts", src: "Natiruts_Sorri_Sou_Rei_muzzik.m4a", genero: "MPB" },
-        { id: 24, title: "Na Estrada", artist: "Na Estrada", src: "Na_Estrada_Na_Estrada_muzzik.m4a", genero: "MPB" },
-        { id: 25, title: "Resposta", artist: "Skank", src: "Skank_Resposta.m4a", genero: "MPB" }
+    // ==================== CONFIGURAÇÕES ====================
+    let isActive = false;
+    let isPlaying = false;
+    let isAdPlaying = false;
+    let isLoading = false;
+    let autoHideTimer = null;
+    let progressInterval = null;
+    let visualizerInterval = null;
+    let musicCountInCycle = 0;
+    let currentMusicList = [];
+    let currentAdIndex = 0;
+    
+    const audio = document.getElementById('audioPlayer');
+    const playerContainer = document.getElementById('playerContainer');
+    const appRoot = document.getElementById('appRoot');
+    
+    // ==================== PLAYLIST ====================
+    const ALL_SONGS = [
+        { title: "Billie Jean", artist: "Michael Jackson", src: "Billie_Jean_muzzik.m4a", genero: "POP" },
+        { title: "Torn", artist: "Natalie Imbruglia", src: "Torn_muzzik.m4a", genero: "POP" },
+        { title: "Sunrise", artist: "Simply Red", src: "Sunrise_muzzik.m4a", genero: "POP" },
+        { title: "Hips Don't Lie", artist: "Shakira", src: "Hips_Don_t_Lie_muzzik.m4a", genero: "POP" },
+        { title: "Haven't Met You Yet", artist: "Michael Bublé", src: "Haven_t_Met_You_Yet_muzzik.m4a", genero: "POP" },
+        { title: "It Ain't Over", artist: "Lenny Kravitz", src: "It_Ain_t_Over_Til_It_s_Over_muzzik.m4a", genero: "POP" },
+        { title: "Down Under", artist: "Arthur Rodrigues", src: "Down_Under_muzzik.m4a", genero: "POP" },
+        { title: "Love Come Down", artist: "Evelyn King", src: "Love_Come_Down_muzzik.m4a", genero: "POP" },
+        { title: "Sultans of Swing", artist: "Dire Straits", src: "Sultans_of_Swing_muzzik.m4a", genero: "POP" },
+        { title: "Destilado", artist: "Ludmilla", src: "LUDMILLA_Destilado_muzzik.m4a", genero: "PAGODE" },
+        { title: "Telepatia", artist: "Ferrugem", src: "Ferrugem_Telepatia_part_Thiaguinho_muzzik.m4a", genero: "PAGODE" },
+        { title: "Champanhe", artist: "Grupo Menos Mais", src: "Grupo_Menos_Mais_Champanhe_muzzik.m4a", genero: "PAGODE" },
+        { title: "Lance Livre", artist: "Kamisa 10", src: "Kamisa_10_-_Lance_Livre_NA_VIBE_DO_K10.mp3", genero: "PAGODE" },
+        { title: "KIiko no Pagode", artist: "KIiko", src: "KIiko_no_Pagode.m4a", genero: "PAGODE" },
+        { title: "Seu Brilho Sumiu", artist: "Israel & Rodolffo", src: "Israel_Rodolffo_MariFernandez_-_Seu_Brilho_Sumiu.mp3", genero: "SERTANEJO" },
+        { title: "Desbloqueado", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_-_Desbloqueado.mp3", genero: "SERTANEJO" },
+        { title: "Vontade de Prestar", artist: "Nattan", src: "Nattan_Vontade_de_Prestar_muzzik.m4a", genero: "SERTANEJO" },
+        { title: "Até Você Voltar", artist: "Marília Mendonça", src: "Mar_lia_Mendon_a_At_Voc_Voltar_muzzik.m4a", genero: "SERTANEJO" },
+        { title: "Retrovisor", artist: "Gusttavo Lima", src: "Gusttavo_Lima_Retrovisor_DVD_muzzik.m4a", genero: "SERTANEJO" },
+        { title: "Que Era Eu", artist: "Lauana Prado", src: "LAUANA_PRADO_QUE_ERA_EU_UM_DIA_DE_DOMINGO.m4a", genero: "SERTANEJO" },
+        { title: "A Tal Canção Pra Lua", artist: "Vitor Kley", src: "Vitor_Kley_Samuel_Rosa_A_Tal_Can_o_Pra_Lua_muzzik.m4a", genero: "MPB" },
+        { title: "A Namorada", artist: "Carlinhos Brown", src: "A_Namorada_A_Namorada_Carlinhos_Brown_muzzik.m4a", genero: "MPB" },
+        { title: "Sorri Sou Rei", artist: "Natiruts", src: "Natiruts_Sorri_Sou_Rei_muzzik.m4a", genero: "MPB" },
+        { title: "Na Estrada", artist: "Na Estrada", src: "Na_Estrada_Na_Estrada_muzzik.m4a", genero: "MPB" },
+        { title: "Resposta", artist: "Skank", src: "Skank_Resposta.m4a", genero: "MPB" }
     ];
-
-    // ==================== ESTADO GLOBAL ====================
-    const state = {
-        isPlaying: false,
-        isAdPlaying: false,
-        generoAtual: 'POP',
-        currentIndex: 0,
-        filteredPlaylist: [],
-        musicCount: 0,
-        isLoadingTrack: false,
-        controlsVisible: true,
-        stats: { totalPlayed: 0, totalSeconds: 0, genreCount: {}, currentStreak: 0 },
-        audioContext: null,
-        analyser: null,
-        sourceNode: null,
-        animationId: null,
-        progressInterval: null,
-        hideTimeout: null,
-        currentAdAudio: null
-    };
-
+    
+    // ==================== 2 ANÚNCIOS ====================
+    const ADS = [
+        { text: "📢 Ótica São Miguel! Qualidade em armações", src: "anun1.mp3" },
+        { text: "📢 Promoção especial! Visite nossa loja", src: "anun2.mp3" }
+    ];
+    
     // ==================== FUNÇÕES AUXILIARES ====================
-    function mostrarNotificacao(msg, dur = 2500) {
-        const n = document.getElementById('notificationTop');
-        n.textContent = msg;
-        n.classList.add('show');
-        setTimeout(() => n.classList.remove('show'), dur);
-    }
-
-    function shuffleArray(arr) { 
-        for (let i = arr.length - 1; i > 0; i--) { 
-            const j = Math.floor(Math.random() * (i + 1)); 
-            [arr[i], arr[j]] = [arr[j], arr[i]]; 
-        } 
-        return arr; 
-    }
-
-    function getRandomSongs(quantidade, genero = null) {
-        let musicas = genero ? PLAYLIST.filter(m => m.genero === genero) : [...PLAYLIST];
-        if (musicas.length === 0) musicas = [...PLAYLIST];
-        const shuffled = shuffleArray([...musicas]);
-        return shuffled.slice(0, quantidade);
-    }
-
-    function salvarStats() { 
-        localStorage.setItem('radio_loja_stats', JSON.stringify(state.stats)); 
+    function showNotification(msg, duration = 3000) {
+        const notificationDiv = document.getElementById('notificationTop');
+        notificationDiv.textContent = msg;
+        notificationDiv.classList.add('show');
+        setTimeout(() => notificationDiv.classList.remove('show'), duration);
     }
     
-    function carregarStats() { 
-        const s = localStorage.getItem('radio_loja_stats'); 
-        if (s) Object.assign(state.stats, JSON.parse(s)); 
+    function showLoading(show) {
+        isLoading = show;
+        const loadingDiv = document.getElementById('loadingSpinner');
+        if (show) loadingDiv.classList.add('show');
+        else loadingDiv.classList.remove('show');
     }
-
+    
+    function formatTime(seconds) {
+        if (isNaN(seconds) || !isFinite(seconds)) return "0:00";
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+    
+    function updateStatus() {
+        const statusSpan = document.getElementById('cycleStatus');
+        if (!statusSpan) return;
+        if (isAdPlaying) {
+            statusSpan.innerHTML = '<i class="fas fa-bullhorn"></i> ANÚNCIO';
+            statusSpan.style.background = "rgba(255, 107, 107, 0.3)";
+            statusSpan.style.borderLeftColor = "#ff6b6b";
+        } else {
+            statusSpan.innerHTML = `<i class="fas fa-music"></i> MÚSICA ${musicCountInCycle + 1}/2`;
+            statusSpan.style.background = "rgba(37, 211, 102, 0.2)";
+            statusSpan.style.borderLeftColor = "#25D366";
+        }
+    }
+    
+    function startProgressTimer() {
+        if (progressInterval) clearInterval(progressInterval);
+        progressInterval = setInterval(() => {
+            if (isPlaying && audio.src && !audio.paused && audio.duration) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                document.getElementById('progressFill').style.width = percent + '%';
+                document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
+                document.getElementById('totalTime').textContent = formatTime(audio.duration);
+            }
+        }, 200);
+    }
+    
+    function stopProgressTimer() {
+        if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
+    }
+    
+    function startVisualizer() {
+        if (visualizerInterval) clearInterval(visualizerInterval);
+        const bars = document.querySelectorAll('.visualizer-bar');
+        visualizerInterval = setInterval(() => {
+            if (isPlaying && !audio.paused && audio.currentTime > 0) {
+                bars.forEach(bar => {
+                    const height = 8 + Math.random() * 40;
+                    bar.style.height = height + 'px';
+                });
+            } else {
+                bars.forEach(bar => bar.style.height = '6px');
+            }
+        }, 90);
+    }
+    
+    function stopVisualizer() {
+        if (visualizerInterval) {
+            clearInterval(visualizerInterval);
+            visualizerInterval = null;
+        }
+        document.querySelectorAll('.visualizer-bar').forEach(bar => bar.style.height = '6px');
+    }
+    
+    function togglePlayer() {
+        playerContainer.classList.toggle('hide');
+        if (!playerContainer.classList.contains('hide')) {
+            if (autoHideTimer) clearTimeout(autoHideTimer);
+            autoHideTimer = setTimeout(() => {
+                if (isPlaying || isAdPlaying) {
+                    playerContainer.classList.add('hide');
+                }
+            }, 4000);
+        }
+    }
+    
+    // ==================== FUNÇÕES DE MÚSICA E ANÚNCIOS ====================
+    function getRandomTwoSongs() {
+        const shuffled = [...ALL_SONGS];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return [shuffled[0], shuffled[1]];
+    }
+    
+    function playNextMusicInCycle() {
+        if (!isActive || isAdPlaying) return;
+        
+        if (!currentMusicList.length || musicCountInCycle >= 2) {
+            console.log("🎵 Carregando novo par de músicas...");
+            currentMusicList = getRandomTwoSongs();
+            musicCountInCycle = 0;
+        }
+        
+        const song = currentMusicList[musicCountInCycle];
+        document.getElementById('trackName').textContent = song.title;
+        document.getElementById('trackArtist').textContent = `🎧 Música ${musicCountInCycle + 1} de 2 • Tocando agora`;
+        
+        audio.src = song.src;
+        audio.load();
+        
+        audio.oncanplaythrough = () => {
+            audio.play().then(() => {
+                isPlaying = true;
+                isAdPlaying = false;
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
+                startProgressTimer();
+                startVisualizer();
+                updateStatus();
+                console.log(`🎵 TOCANDO MÚSICA ${musicCountInCycle + 1}/2: ${song.title}`);
+            }).catch(err => {
+                console.log("Erro ao tocar música:", err);
+                setTimeout(() => playNextMusicInCycle(), 500);
+            });
+        };
+        
+        audio.onerror = () => {
+            console.log("Erro no arquivo de música, tentando próxima...");
+            musicCountInCycle++;
+            playNextMusicInCycle();
+        };
+    }
+    
+    function playAd() {
+        if (!isActive) return;
+        
+        isAdPlaying = true;
+        isPlaying = false;
+        stopVisualizer();
+        stopProgressTimer();
+        
+        const ad = ADS[currentAdIndex % ADS.length];
+        currentAdIndex++;
+        
+        const adToast = document.getElementById('adToast');
+        const adToastText = document.getElementById('adToastText');
+        if (adToast) {
+            adToastText.innerHTML = `<i class="fas fa-bullhorn"></i> ${ad.text}`;
+            adToast.classList.add('show');
+        }
+        
+        console.log(`📢 TOCANDO ANÚNCIO ${currentAdIndex}: ${ad.text}`);
+        updateStatus();
+        
+        document.getElementById('trackName').textContent = "📢 ANÚNCIO - Ótica São Miguel";
+        document.getElementById('trackArtist').textContent = ad.text;
+        document.getElementById('anuncioBadge').style.display = 'block';
+        
+        audio.src = ad.src;
+        audio.load();
+        
+        audio.oncanplaythrough = () => {
+            audio.play().catch(err => {
+                console.log("Erro ao tocar anúncio:", err);
+                finalizarAnuncio();
+            });
+        };
+        
+        audio.onended = () => {
+            finalizarAnuncio();
+        };
+        
+        audio.onerror = () => {
+            console.log("Erro no arquivo de anúncio, pulando...");
+            finalizarAnuncio();
+        };
+    }
+    
+    function finalizarAnuncio() {
+        console.log("✅ ANÚNCIO FINALIZADO! Voltando para as músicas...");
+        isAdPlaying = false;
+        document.getElementById('adToast')?.classList.remove('show');
+        document.getElementById('anuncioBadge').style.display = 'none';
+        musicCountInCycle = 0;
+        currentMusicList = getRandomTwoSongs();
+        playNextMusicInCycle();
+        updateStatus();
+    }
+    
+    // ==================== EVENTO PRINCIPAL DE FIM DE MÚSICA ====================
+    audio.onended = () => {
+        if (isAdPlaying) return;  // CRUCIAL: Se é anúncio, NÃO FAZ NADA
+        
+        if (isActive && isPlaying) {
+            musicCountInCycle++;
+            console.log(`🎵 Música finalizada. musicCountInCycle = ${musicCountInCycle}`);
+            
+            if (musicCountInCycle >= 2) {
+                console.log("🔁 2 MÚSICAS TOCADAS! INICIANDO ANÚNCIO...");
+                playAd();
+            } else {
+                console.log("🎵 Tocando PRÓXIMA música do ciclo...");
+                playNextMusicInCycle();
+            }
+        }
+    };
+    
+    // ==================== CONTROLES DO PLAYER ====================
+    function pauseMusic() {
+        if (audio.src && !audio.paused) {
+            audio.pause();
+            isPlaying = false;
+            document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
+            stopProgressTimer();
+            stopVisualizer();
+        }
+    }
+    
+    function togglePlayPause() {
+        if (!isActive) {
+            showNotification("Clique no botão verde primeiro!", 2000);
+            return;
+        }
+        
+        if (isAdPlaying) {
+            showNotification("Anúncio em execução, aguarde...", 1500);
+            return;
+        }
+        
+        if (isPlaying) {
+            pauseMusic();
+        } else {
+            if (audio.src && audio.src !== "") {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
+                    startProgressTimer();
+                    startVisualizer();
+                }).catch(() => {
+                    playNextMusicInCycle();
+                });
+            } else {
+                playNextMusicInCycle();
+            }
+        }
+    }
+    
+    function nextTrack() {
+        if (!isActive || isAdPlaying || isLoading) return;
+        
+        if (isPlaying) {
+            if (audio.src) {
+                audio.pause();
+                if (musicCountInCycle < 2) {
+                    musicCountInCycle++;
+                    if (musicCountInCycle >= 2) {
+                        playAd();
+                    } else {
+                        playNextMusicInCycle();
+                    }
+                } else {
+                    playAd();
+                }
+            }
+        }
+    }
+    
+    function prevTrack() {
+        nextTrack();
+    }
+    
     // ==================== BLUETOOTH ====================
-    async function conectarBluetooth() {
-        mostrarNotificacao("🔵 Procurando dispositivos Bluetooth...", 2000);
+    async function connectBluetooth() {
+        showNotification("🔵 Procurando dispositivos Bluetooth...", 2000);
         
         if ('bluetooth' in navigator) {
             try {
@@ -789,77 +1026,16 @@
                     acceptAllDevices: true,
                     optionalServices: ['battery_service']
                 });
-                mostrarNotificacao(`✅ Conectado a: ${device.name || 'Dispositivo'}`, 3000);
+                showNotification(`✅ Conectado a: ${device.name || 'Dispositivo'}`, 3000);
             } catch(error) {
-                mostrarNotificacao("❌ Conexão cancelada", 2000);
+                showNotification("❌ Conexão cancelada", 2000);
             }
         } else {
-            mostrarNotificacao("⚠️ Bluetooth só funciona no Chrome ou Edge", 3000);
+            showNotification("⚠️ Use Chrome ou Edge", 3000);
         }
     }
-
-    // ==================== CONTROLES DE VISIBILIDADE ====================
-    function hideControls() {
-        document.getElementById('bottomControls').classList.add('hidden');
-        document.getElementById('floatingButtons').classList.add('hidden');
-        document.getElementById('genreButton').classList.add('hidden');
-        state.controlsVisible = false;
-    }
-
-    function showControls() {
-        document.getElementById('bottomControls').classList.remove('hidden');
-        document.getElementById('floatingButtons').classList.remove('hidden');
-        document.getElementById('genreButton').classList.remove('hidden');
-        state.controlsVisible = true;
-        
-        if (state.hideTimeout) clearTimeout(state.hideTimeout);
-        state.hideTimeout = setTimeout(() => {
-            if (state.controlsVisible) hideControls();
-        }, 5000);
-    }
-
-    function toggleControls() {
-        if (state.controlsVisible) {
-            hideControls();
-        } else {
-            showControls();
-        }
-    }
-
-    // ==================== DOM ELEMENTS ====================
-    const dom = {
-        musicPlayer: document.getElementById('musicPlayer'),
-        playBtn: document.getElementById('playPauseBtn'),
-        prevBtn: document.getElementById('prevBtn'),
-        nextBtn: document.getElementById('nextBtn'),
-        shuffleBtn: document.getElementById('shuffleBtn'),
-        progressFill: document.getElementById('progressFill'),
-        currentTimeEl: document.getElementById('currentTime'),
-        totalTimeEl: document.getElementById('totalTime'),
-        trackMarquee: document.getElementById('trackMarquee'),
-        nextTrackInfo: document.getElementById('nextTrackInfo'),
-        splash: document.getElementById('splash'),
-        appRoot: document.getElementById('appRoot'),
-        loadingSpinner: document.getElementById('loadingSpinner'),
-        genreBadge: document.getElementById('genreBadge'),
-        anuncioBadge: document.getElementById('anuncioBadge'),
-        visualizerBars: document.querySelectorAll('.visualizer-bar'),
-        genreButton: document.getElementById('genreButton'),
-        menuButton: document.getElementById('menuButton'),
-        menuPopup: document.getElementById('menuPopup'),
-        mainVideo: document.getElementById('mainVideo'),
-        statsModal: document.getElementById('statsModal'),
-        genresModal: document.getElementById('genresModal'),
-        manualModal: document.getElementById('manualModal'),
-        shareModal: document.getElementById('shareModal'),
-        feedbackModal: document.getElementById('feedbackModal')
-    };
-
-    // Toque na tela para mostrar/esconder controles
-    dom.appRoot.addEventListener('click', toggleControls);
-    dom.appRoot.addEventListener('touchstart', toggleControls);
-
-    // ==================== COMPARTILHAR COM QR CODE ====================
+    
+    // ==================== COMPARTILHAR ====================
     function openShareModal() {
         const currentUrl = window.location.href;
         document.getElementById('shareLink').textContent = currentUrl;
@@ -873,363 +1049,254 @@
             colorLight: "#0a0a0f",
             correctLevel: QRCode.CorrectLevel.H
         });
-        dom.shareModal.classList.add('open');
+        document.getElementById('shareModal').classList.add('open');
     }
-
-    // ==================== VISUALIZER ====================
-    async function setupVisualizer() {
-        if (state.audioContext) return;
+    
+    // ==================== INICIAR SISTEMA ====================
+    async function startSystem() {
+        if (isActive) return;
+        
+        showLoading(true);
+        
         try {
+            // Ativar áudio
             const AudioContext = window.AudioContext || window.webkitAudioContext;
-            state.audioContext = new AudioContext();
-            state.analyser = state.audioContext.createAnalyser();
-            state.analyser.fftSize = 64;
-            state.sourceNode = state.audioContext.createMediaElementSource(dom.musicPlayer);
-            state.sourceNode.connect(state.analyser);
-            state.analyser.connect(state.audioContext.destination);
+            const ctx = new AudioContext();
+            const oscillator = ctx.createOscillator();
+            const gain = ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(ctx.destination);
+            gain.gain.value = 0;
+            oscillator.start();
+            oscillator.stop(ctx.currentTime + 0.1);
+            await ctx.resume();
+            setTimeout(() => ctx.close(), 200);
             
-            function updateBars() {
-                if (!state.analyser || !state.isPlaying) {
-                    dom.visualizerBars.forEach(b => b.style.height = '4px');
-                    state.animationId = requestAnimationFrame(updateBars);
-                    return;
-                }
-                const dataArray = new Uint8Array(state.analyser.frequencyBinCount);
-                state.analyser.getByteFrequencyData(dataArray);
-                const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-                const scale = Math.min(28, avg / 4);
-                dom.visualizerBars.forEach((bar, idx) => {
-                    const h = 4 + (scale * (idx + 1) / 4);
-                    bar.style.height = `${Math.min(36, h)}px`;
-                });
-                state.animationId = requestAnimationFrame(updateBars);
-            }
-            updateBars();
-        } catch (error) {
-            console.warn("Visualizer error:", error);
+            isActive = true;
+            document.getElementById('splashStartBtn').style.display = 'none';
+            document.getElementById('splash').classList.add('hidden');
+            setTimeout(() => document.getElementById('splash').style.display = 'none', 800);
+            document.getElementById('appRoot').style.display = 'block';
+            
+            try {
+                await document.documentElement.requestFullscreen();
+            } catch(e) {}
+            
+            showNotification("🎬 INICIANDO: ANÚNCIO → 2 MÚSICAS → ANÚNCIO...", 4000);
+            
+            musicCountInCycle = 0;
+            currentAdIndex = 0;
+            currentMusicList = [];
+            
+            startVisualizer();
+            
+            const video = document.getElementById('mainVideo');
+            video.play().catch(e => console.log("Vídeo:", e));
+            
+            // Inicia com anúncio as.m4a
+            setTimeout(() => {
+                const adInicial = new Audio('as.m4a');
+                adInicial.volume = 0.9;
+                adInicial.play().catch(e => console.log("Anúncio inicial:", e));
+                adInicial.onended = () => {
+                    playAd();
+                };
+            }, 500);
+            
+        } catch (err) {
+            console.error("Erro:", err);
+            showNotification("🔊 Clique NOVAMENTE no botão!", 3000);
+            isActive = false;
+            document.getElementById('splashStartBtn').style.display = 'block';
+        } finally {
+            showLoading(false);
         }
     }
-
-    // ==================== PLAYER ENGINE CORRIGIDA ====================
-    const PlayerEngine = {
-        formatTime(sec) {
-            if (isNaN(sec)) return '0:00';
-            const m = Math.floor(sec / 60);
-            const s = Math.floor(sec % 60);
-            return `${m}:${s < 10 ? '0' : ''}${s}`;
-        },
-
-        updateUI(track) {
-            if (!track) return;
-            dom.trackMarquee.innerHTML = `<span class="marquee-text">🎵 ${track.title} - ${track.artist} [${track.genero}]</span>`;
-            dom.currentTimeEl.textContent = '0:00';
-            dom.totalTimeEl.textContent = '0:00';
-            dom.progressFill.style.width = '0%';
-            
-            let nextIdx = state.currentIndex + 1;
-            if (nextIdx >= state.filteredPlaylist.length) nextIdx = 0;
-            const next = state.filteredPlaylist[nextIdx];
-            dom.nextTrackInfo.innerHTML = next ? `Próxima: ${next.title} - ${next.artist}` : 'Próxima: --';
-        },
-
-        async playMusic(music) {
-            if (!music || !music.src) {
-                console.error("Música inválida");
-                return false;
-            }
-
-            state.isLoadingTrack = true;
-            dom.loadingSpinner.classList.add('show');
-            
-            // Para o áudio atual
-            dom.musicPlayer.pause();
-            dom.musicPlayer.currentTime = 0;
-            
-            // Aguarda um pouco
-            await new Promise(r => setTimeout(r, 100));
-            
-            dom.musicPlayer.src = music.src;
-            dom.musicPlayer.load();
-
-            return new Promise((resolve) => {
-                let timeout = setTimeout(() => {
-                    dom.loadingSpinner.classList.remove('show');
-                    state.isLoadingTrack = false;
-                    mostrarNotificacao(`Timeout: ${music.title}`, 2000);
-                    resolve(false);
-                }, 10000);
-
-                dom.musicPlayer.oncanplaythrough = async () => {
-                    clearTimeout(timeout);
-                    dom.loadingSpinner.classList.remove('show');
-                    state.isLoadingTrack = false;
-                    
-                    try {
-                        if (state.audioContext && state.audioContext.state === 'suspended') {
-                            await state.audioContext.resume();
-                        }
-                        await dom.musicPlayer.play();
-                        state.isPlaying = true;
-                        state.isAdPlaying = false;
-                        dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                        this.startProgressTimer();
-                        
-                        state.stats.totalPlayed++;
-                        if (!state.stats.genreCount[music.genero]) state.stats.genreCount[music.genero] = 0;
-                        state.stats.genreCount[music.genero]++;
-                        state.stats.currentStreak++;
-                        salvarStats();
-                        
-                        resolve(true);
-                    } catch (e) {
-                        clearTimeout(timeout);
-                        dom.loadingSpinner.classList.remove('show');
-                        state.isLoadingTrack = false;
-                        state.isPlaying = false;
-                        dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                        console.error("Play error:", e);
-                        resolve(false);
-                    }
-                };
-
-                dom.musicPlayer.onerror = () => {
-                    clearTimeout(timeout);
-                    dom.loadingSpinner.classList.remove('show');
-                    state.isLoadingTrack = false;
-                    mostrarNotificacao(`Erro: ${music.title}`, 2000);
-                    resolve(false);
-                };
-            });
-        },
-
-        async playAd(adSrc, adText) {
-            return new Promise((resolve) => {
-                // Para a música atual
-                dom.musicPlayer.pause();
-                state.isPlaying = false;
-                state.isAdPlaying = true;
-                dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                dom.anuncioBadge.style.display = 'block';
-                dom.trackMarquee.innerHTML = `<span class="marquee-text">📢 ${adText}</span>`;
-                dom.nextTrackInfo.innerHTML = 'Próxima: --';
-                this.stopProgressTimer();
-                
-                // Remove áudio anterior se existir
-                if (state.currentAdAudio) {
-                    state.currentAdAudio.pause();
-                    state.currentAdAudio.src = '';
-                }
-                
-                // Cria novo áudio para o anúncio
-                const adAudio = new Audio();
-                state.currentAdAudio = adAudio;
-                adAudio.src = adSrc;
-                adAudio.volume = CONFIG.VOLUME_PLAYER;
-                
-                let timeout = setTimeout(() => {
-                    if (adAudio) {
-                        adAudio.pause();
-                        adAudio.src = '';
-                    }
-                    dom.anuncioBadge.style.display = 'none';
-                    state.isAdPlaying = false;
-                    state.currentAdAudio = null;
-                    mostrarNotificacao("⏱️ Anúncio finalizado", 1000);
-                    resolve();
-                }, 8000);
-                
-                adAudio.oncanplaythrough = () => {
-                    adAudio.play().catch(e => {
-                        console.warn("Erro anúncio:", e);
-                        clearTimeout(timeout);
-                        dom.anuncioBadge.style.display = 'none';
-                        state.isAdPlaying = false;
-                        state.currentAdAudio = null;
-                        resolve();
-                    });
-                };
-                
-                adAudio.onended = () => {
-                    clearTimeout(timeout);
-                    adAudio.src = '';
-                    dom.anuncioBadge.style.display = 'none';
-                    state.isAdPlaying = false;
-                    state.currentAdAudio = null;
-                    mostrarNotificacao("📢 Anúncio finalizado", 1000);
-                    resolve();
-                };
-                
-                adAudio.onerror = () => {
-                    clearTimeout(timeout);
-                    adAudio.src = '';
-                    dom.anuncioBadge.style.display = 'none';
-                    state.isAdPlaying = false;
-                    state.currentAdAudio = null;
-                    console.warn("Erro no arquivo de anúncio:", adSrc);
-                    resolve();
-                };
-            });
-        },
-
-        async playNextMusic() {
-            if (!state.filteredPlaylist.length) {
-                state.filteredPlaylist = getRandomSongs(2, state.generoAtual === 'MIX' ? null : state.generoAtual);
-                state.currentIndex = 0;
-            }
-            
-            const music = state.filteredPlaylist[state.currentIndex];
-            if (music) {
-                this.updateUI(music);
-                const success = await this.playMusic(music);
-                if (!success && state.currentIndex < state.filteredPlaylist.length - 1) {
-                    state.currentIndex++;
-                    this.playNextMusic();
-                }
-            }
-        },
-
-        async startCycle() {
-            state.musicCount = 0;
-            state.filteredPlaylist = getRandomSongs(2, state.generoAtual === 'MIX' ? null : state.generoAtual);
-            state.currentIndex = 0;
-            await this.playNextMusic();
-        },
-
-        async onMusicEnded() {
-            if (state.isAdPlaying) return;
-            
-            state.musicCount++;
-            console.log(`🎵 Música ${state.musicCount}/2 finalizada`);
-            
-            if (state.musicCount >= 2) {
-                await new Promise(r => setTimeout(r, 500));
-                mostrarNotificacao("📢 Intervalo comercial!", 2000);
-                await this.playAd(CONFIG.ANUNCIO_SEQUENCIA, "ANÚNCIO - Ótica São Miguel");
-                await new Promise(r => setTimeout(r, 500));
-                
-                state.musicCount = 0;
-                state.filteredPlaylist = getRandomSongs(2, state.generoAtual === 'MIX' ? null : state.generoAtual);
-                state.currentIndex = 0;
-                await this.playNextMusic();
-            } else {
-                state.currentIndex++;
-                await this.playNextMusic();
-            }
-        },
-
-        startProgressTimer() {
-            if (state.progressInterval) clearInterval(state.progressInterval);
-            state.progressInterval = setInterval(() => {
-                if (state.isPlaying && dom.musicPlayer.duration && !dom.musicPlayer.paused) {
-                    const percent = (dom.musicPlayer.currentTime / dom.musicPlayer.duration) * 100;
-                    dom.progressFill.style.width = percent + '%';
-                    dom.currentTimeEl.textContent = this.formatTime(dom.musicPlayer.currentTime);
-                    dom.totalTimeEl.textContent = this.formatTime(dom.musicPlayer.duration);
-                }
-            }, 200);
-
-            dom.musicPlayer.onended = () => {
-                this.onMusicEnded();
-            };
-        },
-
-        stopProgressTimer() {
-            if (state.progressInterval) {
-                clearInterval(state.progressInterval);
-                state.progressInterval = null;
-            }
-        },
-
-        pause() {
-            dom.musicPlayer.pause();
-            state.isPlaying = false;
-            dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            this.stopProgressTimer();
-        },
-
-        togglePlayPause() {
-            if (state.isAdPlaying) {
-                mostrarNotificacao("Anúncio em execução...", 1500);
-                return;
-            }
-            if (state.isPlaying) {
-                this.pause();
-            } else {
-                this.playNextMusic();
-            }
-        },
-
-        async next() {
-            if (state.isAdPlaying) {
-                mostrarNotificacao("Aguarde o anúncio terminar...", 1500);
-                return;
-            }
-            this.stopProgressTimer();
-            if (state.musicCount < 2) {
-                state.musicCount++;
-            }
-            await this.onMusicEnded();
-        },
-
-        async prev() {
-            if (state.isAdPlaying) {
-                mostrarNotificacao("Aguarde o anúncio terminar...", 1500);
-                return;
-            }
-            mostrarNotificacao("⏪ Voltando música...", 1000);
-            this.stopProgressTimer();
-            await this.onMusicEnded();
+    
+    // ==================== EVENTOS DE TOQUE ====================
+    appRoot.addEventListener('touchstart', (e) => {
+        if (isActive && !e.target.closest('.ctrl-btn') && !e.target.closest('.float-btn') && !e.target.closest('.menu-btn')) {
+            togglePlayer();
         }
-    };
-
-    function updateMarquee() {
-        const msg = `🎵 RÁDIO LOJA | MODO: ${state.generoAtual} | ⚡ MÚSICA PARA SEU NEGÓCIO | 📻 24h | OTICASSAOMIGUEL.COM.BR`;
-        dom.trackMarquee.innerHTML = `<span class="marquee-text">${msg}</span>`;
-    }
-
-    function updateGenreBadge(genero) {
-        const g = genero === 'MIX' ? 'TODOS' : genero;
-        dom.genreBadge.innerHTML = `<i class="fas fa-music"></i> ${g}`;
-        updateMarquee();
-    }
-
-    // ==================== PLAYLIST MANAGER ====================
-    const PlaylistManager = {
-        async filterByGenre(genero) {
-            if (state.isAdPlaying) {
-                mostrarNotificacao("Aguarde o anúncio terminar...", 1500);
-                return;
+    });
+    
+    let touchStartX = 0;
+    let lastTap = 0;
+    
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        const now = Date.now();
+        if (now - lastTap < 300) {
+            e.preventDefault();
+            togglePlayPause();
+        }
+        lastTap = now;
+    });
+    
+    document.addEventListener('touchend', (e) => {
+        const diff = e.changedTouches[0].screenX - touchStartX;
+        if (Math.abs(diff) > 50 && isActive && !isAdPlaying) {
+            if (diff > 0) prevTrack();
+            else nextTrack();
+        }
+    });
+    
+    // ==================== EVENT LISTENERS ====================
+    document.getElementById('progressBar')?.addEventListener('click', (e) => {
+        if (audio.duration && !isAdPlaying && isPlaying) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = percent * audio.duration;
+        }
+    });
+    
+    document.getElementById('splashStartBtn')?.addEventListener('click', startSystem);
+    document.getElementById('playPauseBtn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        togglePlayPause();
+    });
+    document.getElementById('nextBtn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        nextTrack();
+    });
+    document.getElementById('prevBtn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        prevTrack();
+    });
+    
+    document.getElementById('shuffleBtn')?.addEventListener('click', () => {
+        if (!isAdPlaying) {
+            currentMusicList = getRandomTwoSongs();
+            musicCountInCycle = 0;
+            if (isPlaying) {
+                audio.pause();
+                playNextMusicInCycle();
             }
-            
-            state.generoAtual = genero;
-            
+            showNotification("🔀 Novas músicas carregadas", 1500);
+        }
+    });
+    
+    document.getElementById('whatsappBtn')?.addEventListener('click', () => {
+        window.open('https://wa.me/5512988461978', '_blank');
+    });
+    
+    document.getElementById('siteBtn')?.addEventListener('click', () => {
+        window.open('https://oticassaomiguel.com.br/', '_blank');
+    });
+    
+    document.getElementById('bluetoothBtn')?.addEventListener('click', connectBluetooth);
+    document.getElementById('shareFloatBtn')?.addEventListener('click', openShareModal);
+    document.getElementById('shareMenuBtn')?.addEventListener('click', openShareModal);
+    
+    document.getElementById('genreButton')?.addEventListener('click', () => {
+        document.getElementById('genresModal').classList.add('open');
+    });
+    
+    document.querySelectorAll('.genre-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const genero = card.getAttribute('data-genero');
             if (genero === 'TODOS') {
-                state.generoAtual = "MIX";
-                updateGenreBadge("MIX");
-                state.filteredPlaylist = getRandomSongs(2, null);
+                const todas = [...ALL_SONGS];
+                for (let i = todas.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [todas[i], todas[j]] = [todas[j], todas[i]];
+                }
+                currentMusicList = [todas[0], todas[1]];
             } else {
-                const musicasDoGenero = PLAYLIST.filter(m => m.genero === genero);
-                if (musicasDoGenero.length === 0) {
-                    state.filteredPlaylist = getRandomSongs(2, null);
-                    mostrarNotificacao(`⚠️ Nenhuma música para ${genero}. Carregando todas.`, 2000);
-                    state.generoAtual = "MIX";
-                    updateGenreBadge("MIX");
+                const filtradas = ALL_SONGS.filter(m => m.genero === genero);
+                if (filtradas.length >= 2) {
+                    const shuffled = [...filtradas];
+                    for (let i = shuffled.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                    }
+                    currentMusicList = [shuffled[0], shuffled[1]];
                 } else {
-                    state.filteredPlaylist = getRandomSongs(2, genero);
-                    updateGenreBadge(genero);
+                    currentMusicList = getRandomTwoSongs();
                 }
             }
-            
-            state.currentIndex = 0;
-            state.musicCount = 0;
-            
-            if (state.isPlaying) {
-                PlayerEngine.stopProgressTimer();
-                await PlayerEngine.playNextMusic();
+            musicCountInCycle = 0;
+            document.getElementById('genreBadge').innerHTML = `<i class="fas fa-music"></i> ${genero}`;
+            document.getElementById('genresModal').classList.remove('open');
+            if (isPlaying) {
+                audio.pause();
+                playNextMusicInCycle();
             }
+            showNotification(`🎵 Modo ${genero} ativado`, 1500);
+        });
+    });
+    
+    document.getElementById('closeGenresBtn')?.addEventListener('click', () => {
+        document.getElementById('genresModal').classList.remove('open');
+    });
+    
+    document.getElementById('menuButton')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('menuPopup').classList.toggle('open');
+    });
+    
+    document.addEventListener('click', (e) => {
+        const menuBtn = document.getElementById('menuButton');
+        const menuPopup = document.getElementById('menuPopup');
+        if (!menuBtn?.contains(e.target) && !menuPopup?.contains(e.target)) {
+            menuPopup?.classList.remove('open');
         }
-    };
-
+    });
+    
+    document.getElementById('searchMenuBtn')?.addEventListener('click', () => {
+        document.getElementById('searchContainer').style.display = 'block';
+        document.getElementById('searchInput').focus();
+        document.getElementById('menuPopup').classList.remove('open');
+    });
+    
+    document.getElementById('fullscreenMenuBtn')?.addEventListener('click', () => {
+        document.documentElement.requestFullscreen();
+        document.getElementById('menuPopup').classList.remove('open');
+    });
+    
+    document.getElementById('manualMenuBtn')?.addEventListener('click', () => {
+        document.getElementById('manualModal').classList.add('open');
+        document.getElementById('menuPopup').classList.remove('open');
+    });
+    
+    document.getElementById('statsMenuBtn')?.addEventListener('click', () => {
+        document.getElementById('statsModal').classList.add('open');
+        document.getElementById('menuPopup').classList.remove('open');
+    });
+    
+    document.getElementById('feedbackMenuBtn')?.addEventListener('click', () => {
+        document.getElementById('feedbackModal').classList.add('open');
+        document.getElementById('menuPopup').classList.remove('open');
+    });
+    
+    document.getElementById('siteMenuBtn')?.addEventListener('click', () => {
+        window.open('https://oticassaomiguel.com.br/', '_blank');
+        document.getElementById('menuPopup').classList.remove('open');
+    });
+    
+    document.getElementById('whatsappMenuBtn')?.addEventListener('click', () => {
+        window.open('https://wa.me/5512988461978', '_blank');
+        document.getElementById('menuPopup').classList.remove('open');
+    });
+    
+    document.getElementById('closeStatsBtn')?.addEventListener('click', () => {
+        document.getElementById('statsModal').classList.remove('open');
+    });
+    
+    document.getElementById('closeManualBtn')?.addEventListener('click', () => {
+        document.getElementById('manualModal').classList.remove('open');
+    });
+    
+    document.getElementById('closeShareBtn')?.addEventListener('click', () => {
+        document.getElementById('shareModal').classList.remove('open');
+    });
+    
+    document.getElementById('copyLinkBtn')?.addEventListener('click', () => {
+        const link = document.getElementById('shareLink').textContent;
+        navigator.clipboard.writeText(link);
+        showNotification("Link copiado!", 1500);
+    });
+    
     // ==================== SEARCH ====================
     const searchDiv = document.createElement('div');
     searchDiv.id = 'searchContainer';
@@ -1241,297 +1308,46 @@
     `;
     document.body.appendChild(searchDiv);
     
-    const domSearch = {
-        container: searchDiv,
-        input: document.getElementById('searchInput'),
-        results: document.getElementById('searchResults')
-    };
-    
     document.getElementById('closeSearchBtn')?.addEventListener('click', () => {
-        domSearch.container.style.display = 'none';
+        searchDiv.style.display = 'none';
     });
-
-    function performSearch(q) {
+    
+    document.getElementById('searchInput')?.addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase();
         if (!q.trim()) {
-            domSearch.results.innerHTML = '';
+            document.getElementById('searchResults').innerHTML = '';
             return;
         }
-        const lower = q.toLowerCase();
-        const results = PLAYLIST.filter(m => 
-            m.title.toLowerCase().includes(lower) || 
-            m.artist.toLowerCase().includes(lower)
-        ).slice(0, 10);
-        
-        domSearch.results.innerHTML = results.map(m => 
-            `<div class="search-item" data-id="${m.id}">🎵 ${m.title} - ${m.artist} [${m.genero}]</div>`
-        ).join('');
+        const results = ALL_SONGS.filter(m => m.title.toLowerCase().includes(q) || m.artist.toLowerCase().includes(q)).slice(0, 10);
+        document.getElementById('searchResults').innerHTML = results.map(m => `<div class="search-item" data-src="${m.src}" data-title="${m.title}" data-artist="${m.artist}" data-genero="${m.genero}">🎵 ${m.title} - ${m.artist} [${m.genero}]</div>`).join('');
         
         document.querySelectorAll('.search-item').forEach(el => {
-            el.addEventListener('click', async () => {
-                const id = parseInt(el.dataset.id);
-                const music = PLAYLIST.find(m => m.id === id);
-                if (music && !state.isAdPlaying) {
-                    state.filteredPlaylist = [music, ...getRandomSongs(1, music.genero)];
-                    state.currentIndex = 0;
-                    state.musicCount = 0;
-                    PlayerEngine.updateUI(music);
-                    updateGenreBadge(music.genero);
-                    PlayerEngine.stopProgressTimer();
-                    await PlayerEngine.playNextMusic();
-                    domSearch.container.style.display = 'none';
-                    mostrarNotificacao(`🔍 Tocando: ${music.title}`, 2500);
+            el.addEventListener('click', () => {
+                const src = el.dataset.src;
+                const title = el.dataset.title;
+                const artist = el.dataset.artist;
+                const genero = el.dataset.genero;
+                
+                currentMusicList = [{ title, artist, src, genero }, ...getRandomTwoSongs()];
+                musicCountInCycle = 0;
+                document.getElementById('genreBadge').innerHTML = `<i class="fas fa-music"></i> ${genero}`;
+                searchDiv.style.display = 'none';
+                if (isPlaying) {
+                    audio.pause();
+                    playNextMusicInCycle();
                 }
+                showNotification(`🔍 Tocando: ${title}`, 2500);
             });
         });
-    }
-
-    if (domSearch.input) {
-        domSearch.input.addEventListener('input', e => performSearch(e.target.value));
-    }
-
-    // ==================== INICIALIZAÇÃO ====================
-    let radioStarted = false;
-
-    async function iniciarRadio() {
-        if (radioStarted) return;
-        radioStarted = true;
-
-        // Entrar em tela cheia
-        try { 
-            await document.documentElement.requestFullscreen();
-        } catch(e) { 
-            console.log("Fullscreen não suportado");
-        }
-
-        dom.splash.classList.add('hidden');
-        setTimeout(() => dom.splash.style.display = 'none', 800);
-        dom.appRoot.style.display = 'block';
-        dom.mainVideo.play().catch(e => console.warn("Video error:", e));
-
-        await setupVisualizer();
-        if (state.audioContext && state.audioContext.state === 'suspended') {
-            await state.audioContext.resume();
-        }
-
-        // Iniciar com anúncio as.m4a
-        mostrarNotificacao("🎙️ Iniciando com anúncio...", 3000);
-        await PlayerEngine.playAd(CONFIG.ANUNCIO_INICIAL, "ANÚNCIO - Ótica São Miguel");
-        dom.anuncioBadge.style.display = 'none';
-
-        // Configurar modo POP e iniciar ciclo
-        state.generoAtual = 'POP';
-        state.filteredPlaylist = getRandomSongs(2, 'POP');
-        state.currentIndex = 0;
-        state.musicCount = 0;
-        
-        updateGenreBadge('POP');
-        
-        mostrarNotificacao("✅ Rádio Loja iniciada! Modo POP", 3000);
-        await PlayerEngine.playNextMusic();
-        
-        showControls();
-    }
-
-    // ==================== EVENT LISTENERS ====================
-    function setupEventListeners() {
-        document.getElementById('splashStartBtn')?.addEventListener('click', iniciarRadio);
-
-        dom.playBtn.addEventListener('click', () => PlayerEngine.togglePlayPause());
-        dom.prevBtn.addEventListener('click', () => PlayerEngine.prev());
-        dom.nextBtn.addEventListener('click', () => PlayerEngine.next());
-        
-        dom.shuffleBtn.addEventListener('click', async () => {
-            if (state.isAdPlaying) {
-                mostrarNotificacao("Aguarde o anúncio terminar...", 1500);
-                return;
-            }
-            state.filteredPlaylist = getRandomSongs(2, state.generoAtual === 'MIX' ? null : state.generoAtual);
-            state.currentIndex = 0;
-            state.musicCount = 0;
-            PlayerEngine.updateUI(state.filteredPlaylist[0]);
-            PlayerEngine.stopProgressTimer();
-            await PlayerEngine.playNextMusic();
-            mostrarNotificacao('🔀 Novas músicas carregadas', 1500);
-        });
-
-        document.getElementById('progressBar')?.addEventListener('click', e => {
-            if (!state.isAdPlaying && dom.musicPlayer.duration) {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                dom.musicPlayer.currentTime = percent * dom.musicPlayer.duration;
-            }
-        });
-
-        dom.genreButton.addEventListener('click', () => dom.genresModal.classList.add('open'));
-        
-        document.querySelectorAll('.genre-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const genero = card.getAttribute('data-genero');
-                PlaylistManager.filterByGenre(genero);
-                dom.genresModal.classList.remove('open');
-            });
-        });
-        
-        document.getElementById('closeGenresBtn')?.addEventListener('click', () => {
-            dom.genresModal.classList.remove('open');
-        });
-
-        dom.menuButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dom.menuPopup.classList.toggle('open');
-        });
-        
-        document.addEventListener('click', (e) => {
-            if (!dom.menuButton.contains(e.target) && !dom.menuPopup.contains(e.target)) {
-                dom.menuPopup.classList.remove('open');
-            }
-        });
-
-        document.getElementById('searchMenuBtn')?.addEventListener('click', () => {
-            domSearch.container.style.display = 'block';
-            domSearch.input?.focus();
-            dom.menuPopup.classList.remove('open');
-        });
-
-        document.getElementById('fullscreenMenuBtn')?.addEventListener('click', () => {
-            document.documentElement.requestFullscreen();
-            dom.menuPopup.classList.remove('open');
-        });
-
-        document.getElementById('shareMenuBtn')?.addEventListener('click', () => {
-            openShareModal();
-            dom.menuPopup.classList.remove('open');
-        });
-
-        document.getElementById('shareFloatBtn')?.addEventListener('click', openShareModal);
-        document.getElementById('bluetoothBtn')?.addEventListener('click', conectarBluetooth);
-        
-        document.getElementById('whatsappBtn')?.addEventListener('click', () => {
-            window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=Olá!%20Gostaria%20de%20falar%20sobre%20a%20Rádio%20Loja`, '_blank');
-        });
-        
-        document.getElementById('siteBtn')?.addEventListener('click', () => {
-            window.open(CONFIG.SITE_URL, '_blank');
-        });
-
-        document.getElementById('statsMenuBtn')?.addEventListener('click', () => {
-            document.getElementById('statTotalPlayed').textContent = state.stats.totalPlayed;
-            const h = Math.floor(state.stats.totalSeconds / 3600);
-            const m = Math.floor((state.stats.totalSeconds % 3600) / 60);
-            document.getElementById('statTotalTime').textContent = `${h}h ${m}m`;
-            let top = "Nenhum", max = 0;
-            for (let [g, c] of Object.entries(state.stats.genreCount)) {
-                if (c > max) { max = c; top = g; }
-            }
-            document.getElementById('statTopGenre').textContent = top;
-            document.getElementById('statStreak').textContent = state.stats.currentStreak;
-            dom.statsModal.classList.add('open');
-            dom.menuPopup.classList.remove('open');
-        });
-
-        document.getElementById('manualMenuBtn')?.addEventListener('click', () => {
-            dom.manualModal.classList.add('open');
-            dom.menuPopup.classList.remove('open');
-        });
-
-        document.getElementById('feedbackMenuBtn')?.addEventListener('click', () => {
-            dom.feedbackModal.classList.toggle('open');
-            dom.menuPopup.classList.remove('open');
-        });
-
-        document.getElementById('siteMenuBtn')?.addEventListener('click', () => {
-            window.open(CONFIG.SITE_URL, '_blank');
-            dom.menuPopup.classList.remove('open');
-        });
-
-        document.getElementById('whatsappMenuBtn')?.addEventListener('click', () => {
-            window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=Olá!%20Gostaria%20de%20falar%20sobre%20a%20Rádio%20Loja`, '_blank');
-            dom.menuPopup.classList.remove('open');
-        });
-
-        document.getElementById('closeStatsBtn')?.addEventListener('click', () => dom.statsModal.classList.remove('open'));
-        document.getElementById('closeManualBtn')?.addEventListener('click', () => dom.manualModal.classList.remove('open'));
-        document.getElementById('closeShareBtn')?.addEventListener('click', () => dom.shareModal.classList.remove('open'));
-        
-        document.getElementById('copyLinkBtn')?.addEventListener('click', () => {
-            const link = document.getElementById('shareLink').textContent;
-            navigator.clipboard.writeText(link);
-            mostrarNotificacao("Link copiado!", 1500);
-        });
-
-        // Feedback stars
-        let currentRating = 0;
-        const stars = document.querySelectorAll('#ratingStars .star');
-        stars.forEach(star => {
-            star.addEventListener('click', () => {
-                currentRating = parseInt(star.dataset.rating);
-                stars.forEach((s, i) => {
-                    if (i < currentRating) {
-                        s.classList.add('fas', 'active');
-                        s.classList.remove('far');
-                    } else {
-                        s.classList.remove('fas', 'active');
-                        s.classList.add('far');
-                    }
-                });
-            });
-        });
-
-        document.getElementById('cancelFeedback')?.addEventListener('click', () => {
-            dom.feedbackModal.classList.remove('open');
-            document.getElementById('feedbackText').value = '';
-            currentRating = 0;
-            stars.forEach(s => {
-                s.classList.remove('fas', 'active');
-                s.classList.add('far');
-            });
-        });
-
-        document.getElementById('sendFeedback')?.addEventListener('click', () => {
-            if (currentRating === 0) {
-                mostrarNotificacao('⭐ Selecione uma nota', 2000);
-                return;
-            }
-            let msg = `🎵 *Rádio Loja - Feedback*\n⭐ Nota: ${'★'.repeat(currentRating)}${'☆'.repeat(5 - currentRating)}\n`;
-            const text = document.getElementById('feedbackText')?.value.trim() || '';
-            if (text) msg += `💬 ${text}\n`;
-            window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-            mostrarNotificacao('✅ Obrigado pelo feedback!', 2000);
-            dom.feedbackModal.classList.remove('open');
-            document.getElementById('feedbackText').value = '';
-            currentRating = 0;
-            stars.forEach(s => {
-                s.classList.remove('fas', 'active');
-                s.classList.add('far');
-            });
-        });
-    }
-
-    // ==================== INIT ====================
-    async function init() {
-        console.log(`✅ Rádio Loja inicializada | ${PLAYLIST.length} músicas`);
-        carregarStats();
-        dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
-        
-        setupEventListeners();
-        
-        setInterval(() => {
-            if (state.isPlaying && !dom.musicPlayer.paused && dom.musicPlayer.currentTime > 0) {
-                state.stats.totalSeconds++;
-                salvarStats();
-            }
-        }, 1000);
-    }
-
-    init();
-
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').catch(e => console.log("SW não registrado"));
-    }
-
-    console.log('🚀 Rádio Loja pronta! Toque na tela para controles.');
-    console.log('🔵 Bluetooth disponível! Clique no ícone azul para conectar.');
-    console.log('📢 Lógica: as.m4a → 2 músicas aleatórias → sa.m4a → 2 músicas aleatórias...');
+    });
+    
+    // Inicializar vídeo
+    const video = document.getElementById('mainVideo');
+    video.play().catch(e => console.log("Aguardando interação"));
+    
+    console.log("✅ SISTEMA PRONTO - Lógica: ANÚNCIO → 2 MÚSICAS → ANÚNCIO...");
+    console.log("🔵 Bluetooth disponível!");
+    console.log("🎮 Toque na tela para controles!");
 </script>
 </body>
 </html>
