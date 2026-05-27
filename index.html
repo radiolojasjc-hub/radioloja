@@ -215,33 +215,6 @@
         .btn-info { background: linear-gradient(135deg, #667eea, #764ba2); }
         .btn-bluetooth { background: #0082fc; }
 
-        .visualizer {
-            position: fixed;
-            top: 80px;
-            left: 0;
-            right: 0;
-            display: flex;
-            gap: 6px;
-            align-items: flex-end;
-            justify-content: center;
-            z-index: 25;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            padding: 15px 20px;
-            border-radius: 0 0 30px 30px;
-            margin: 0 auto;
-            width: fit-content;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .visualizer-bar {
-            width: 5px;
-            background: linear-gradient(135deg, #25D366, #667eea);
-            border-radius: 3px;
-            transition: height 0.08s ease;
-            height: 6px;
-        }
-
         .menu-btn {
             position: fixed;
             top: 15px;
@@ -404,48 +377,11 @@
             cursor: pointer;
         }
 
-        .ad-toast {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #25D366, #667eea);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 60px;
-            z-index: 150;
-            display: none;
-            align-items: center;
-            gap: 12px;
-            font-weight: bold;
-            animation: slideUp 0.3s ease;
-            text-align: center;
-            max-width: 85%;
-            font-size: 0.9rem;
-        }
-
-        .ad-toast.show {
-            display: flex;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translate(-50%, -50%) translateY(20px);
-                opacity: 0;
-            }
-            to {
-                transform: translate(-50%, -50%) translateY(0);
-                opacity: 1;
-            }
-        }
-
         @media (max-width: 600px) {
             .control-buttons { gap: 20px; }
             .ctrl-btn { width: 45px; height: 45px; }
             .play-btn { width: 55px; height: 55px; }
             .activate-btn { padding: 15px 30px; font-size: 1rem; }
-            .visualizer { top: 60px; padding: 12px 18px; gap: 5px; }
-            .visualizer-bar { width: 4px; }
         }
     </style>
 </head>
@@ -485,21 +421,6 @@
         </div>
     </div>
 
-    <div class="visualizer" id="visualizer">
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-    </div>
-
     <div class="float-buttons">
         <button class="float-btn btn-bluetooth" id="bluetoothBtn"><i class="fab fa-bluetooth-b"></i></button>
         <button class="float-btn btn-wpp" id="wppBtn"><i class="fab fa-whatsapp"></i></button>
@@ -528,11 +449,6 @@
         <span>Carregando...</span>
     </div>
 
-    <div class="ad-toast" id="adToast">
-        <i class="fas fa-bullhorn"></i>
-        <span id="adToastText">📢 ANÚNCIO - Ótica Heloísa</span>
-    </div>
-
     <div class="modal" id="infoModal">
         <h2><i class="fas fa-glasses"></i> Ótica Heloísa</h2>
         <p>👓 Armações de qualidade</p>
@@ -559,6 +475,10 @@
 <audio id="audioPlayer" preload="auto"></audio>
 
 <script>
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('open');
+    }
+
     // ==================== TODAS AS 25 MÚSICAS ====================
     const ALL_SONGS = [
         // POP
@@ -605,17 +525,12 @@
     let isLoading = false;
     let autoHideTimer = null;
     let progressInterval = null;
-    let visualizerInterval = null;
     let currentAdIndex = 0;
     let musicCountInCycle = 0;
     let currentMusicList = [];
     
     const audio = document.getElementById('audioPlayer');
     const playerContainer = document.getElementById('playerContainer');
-    
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.remove('open');
-    }
     
     function showNotification(msg, duration = 3000) {
         const notificationDiv = document.getElementById('notification');
@@ -671,29 +586,6 @@
         }
     }
     
-    function startVisualizer() {
-        if (visualizerInterval) clearInterval(visualizerInterval);
-        const bars = document.querySelectorAll('.visualizer-bar');
-        visualizerInterval = setInterval(() => {
-            if (isPlaying && !audio.paused && audio.currentTime > 0) {
-                bars.forEach(bar => {
-                    const height = 8 + Math.random() * 40;
-                    bar.style.height = height + 'px';
-                });
-            } else {
-                bars.forEach(bar => bar.style.height = '6px');
-            }
-        }, 90);
-    }
-    
-    function stopVisualizer() {
-        if (visualizerInterval) {
-            clearInterval(visualizerInterval);
-            visualizerInterval = null;
-        }
-        document.querySelectorAll('.visualizer-bar').forEach(bar => bar.style.height = '6px');
-    }
-    
     function togglePlayer() {
         playerContainer.classList.toggle('hide');
         if (!playerContainer.classList.contains('hide')) {
@@ -737,7 +629,6 @@
                 isAdPlaying = false;
                 document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
                 startProgressTimer();
-                startVisualizer();
                 updateStatus();
                 console.log(`🎵 TOCANDO MÚSICA ${musicCountInCycle + 1}/2: ${song.title}`);
             }).catch(err => {
@@ -758,16 +649,10 @@
         
         isAdPlaying = true;
         isPlaying = false;
-        stopVisualizer();
         stopProgressTimer();
         
         const ad = ADS[currentAdIndex % ADS.length];
         currentAdIndex++;
-        
-        const adToast = document.getElementById('adToast');
-        const adToastText = document.getElementById('adToastText');
-        adToastText.innerHTML = `<i class="fas fa-bullhorn"></i> ${ad.text}`;
-        adToast.classList.add('show');
         
         console.log(`📢 TOCANDO ANÚNCIO ${currentAdIndex}: ${ad.text}`);
         updateStatus();
@@ -798,7 +683,6 @@
     function finalizarAnuncio() {
         console.log("✅ ANÚNCIO FINALIZADO! Voltando para as músicas...");
         isAdPlaying = false;
-        document.getElementById('adToast').classList.remove('show');
         musicCountInCycle = 0;
         currentMusicList = getRandomTwoSongs();
         playNextMusicInCycle();
@@ -828,7 +712,6 @@
             isPlaying = false;
             document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
             stopProgressTimer();
-            stopVisualizer();
         }
     }
     
@@ -851,7 +734,6 @@
                     isPlaying = true;
                     document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
                     startProgressTimer();
-                    startVisualizer();
                 }).catch(() => {
                     playNextMusicInCycle();
                 });
@@ -935,8 +817,6 @@
             musicCountInCycle = 0;
             currentAdIndex = 0;
             currentMusicList = [];
-            
-            startVisualizer();
             
             const video = document.getElementById('bgVideo');
             video.play().catch(e => console.log("Vídeo:", e));
