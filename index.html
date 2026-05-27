@@ -705,39 +705,29 @@
     const playerContainer = document.getElementById('playerContainer');
     const appRoot = document.getElementById('appRoot');
     
-    // ==================== PLAYLIST ====================
+    // ==================== MÚSICAS COM URLs FUNCIONAIS ====================
     const ALL_SONGS = [
-        { title: "Billie Jean", artist: "Michael Jackson", src: "Billie_Jean_muzzik.m4a", genero: "POP" },
-        { title: "Torn", artist: "Natalie Imbruglia", src: "Torn_muzzik.m4a", genero: "POP" },
-        { title: "Sunrise", artist: "Simply Red", src: "Sunrise_muzzik.m4a", genero: "POP" },
-        { title: "Hips Don't Lie", artist: "Shakira", src: "Hips_Don_t_Lie_muzzik.m4a", genero: "POP" },
-        { title: "Haven't Met You Yet", artist: "Michael Bublé", src: "Haven_t_Met_You_Yet_muzzik.m4a", genero: "POP" },
-        { title: "It Ain't Over", artist: "Lenny Kravitz", src: "It_Ain_t_Over_Til_It_s_Over_muzzik.m4a", genero: "POP" },
-        { title: "Down Under", artist: "Arthur Rodrigues", src: "Down_Under_muzzik.m4a", genero: "POP" },
-        { title: "Love Come Down", artist: "Evelyn King", src: "Love_Come_Down_muzzik.m4a", genero: "POP" },
-        { title: "Sultans of Swing", artist: "Dire Straits", src: "Sultans_of_Swing_muzzik.m4a", genero: "POP" },
-        { title: "Destilado", artist: "Ludmilla", src: "LUDMILLA_Destilado_muzzik.m4a", genero: "PAGODE" },
-        { title: "Telepatia", artist: "Ferrugem", src: "Ferrugem_Telepatia_part_Thiaguinho_muzzik.m4a", genero: "PAGODE" },
-        { title: "Champanhe", artist: "Grupo Menos Mais", src: "Grupo_Menos_Mais_Champanhe_muzzik.m4a", genero: "PAGODE" },
-        { title: "Lance Livre", artist: "Kamisa 10", src: "Kamisa_10_-_Lance_Livre_NA_VIBE_DO_K10.mp3", genero: "PAGODE" },
-        { title: "KIiko no Pagode", artist: "KIiko", src: "KIiko_no_Pagode.m4a", genero: "PAGODE" },
-        { title: "Seu Brilho Sumiu", artist: "Israel & Rodolffo", src: "Israel_Rodolffo_MariFernandez_-_Seu_Brilho_Sumiu.mp3", genero: "SERTANEJO" },
-        { title: "Desbloqueado", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_-_Desbloqueado.mp3", genero: "SERTANEJO" },
-        { title: "Vontade de Prestar", artist: "Nattan", src: "Nattan_Vontade_de_Prestar_muzzik.m4a", genero: "SERTANEJO" },
-        { title: "Até Você Voltar", artist: "Marília Mendonça", src: "Mar_lia_Mendon_a_At_Voc_Voltar_muzzik.m4a", genero: "SERTANEJO" },
-        { title: "Retrovisor", artist: "Gusttavo Lima", src: "Gusttavo_Lima_Retrovisor_DVD_muzzik.m4a", genero: "SERTANEJO" },
-        { title: "Que Era Eu", artist: "Lauana Prado", src: "LAUANA_PRADO_QUE_ERA_EU_UM_DIA_DE_DOMINGO.m4a", genero: "SERTANEJO" },
-        { title: "A Tal Canção Pra Lua", artist: "Vitor Kley", src: "Vitor_Kley_Samuel_Rosa_A_Tal_Can_o_Pra_Lua_muzzik.m4a", genero: "MPB" },
-        { title: "A Namorada", artist: "Carlinhos Brown", src: "A_Namorada_A_Namorada_Carlinhos_Brown_muzzik.m4a", genero: "MPB" },
-        { title: "Sorri Sou Rei", artist: "Natiruts", src: "Natiruts_Sorri_Sou_Rei_muzzik.m4a", genero: "MPB" },
-        { title: "Na Estrada", artist: "Na Estrada", src: "Na_Estrada_Na_Estrada_muzzik.m4a", genero: "MPB" },
-        { title: "Resposta", artist: "Skank", src: "Skank_Resposta.m4a", genero: "MPB" }
+        { title: "Billie Jean", artist: "Michael Jackson", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "POP" },
+        { title: "Torn", artist: "Natalie Imbruglia", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero: "POP" },
+        { title: "Sunrise", artist: "Simply Red", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "POP" },
+        { title: "Hips Don't Lie", artist: "Shakira", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", genero: "POP" },
+        { title: "Haven't Met You Yet", artist: "Michael Bublé", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", genero: "POP" },
+        { title: "Destilado", artist: "Ludmilla", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", genero: "PAGODE" },
+        { title: "Telepatia", artist: "Ferrugem", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3", genero: "PAGODE" },
+        { title: "Champanhe", artist: "Grupo Menos Mais", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3", genero: "PAGODE" },
+        { title: "Seu Brilho Sumiu", artist: "Israel & Rodolffo", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3", genero: "SERTANEJO" },
+        { title: "Desbloqueado", artist: "Diego & Victor Hugo", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3", genero: "SERTANEJO" },
+        { title: "Vontade de Prestar", artist: "Nattan", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "SERTANEJO" },
+        { title: "A Tal Canção Pra Lua", artist: "Vitor Kley", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero: "MPB" },
+        { title: "Sorri Sou Rei", artist: "Natiruts", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "MPB" },
+        { title: "Resposta", artist: "Skank", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", genero: "MPB" },
+        { title: "Garota de Ipanema", artist: "Tom Jobim", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", genero: "MPB" }
     ];
     
-    // ==================== 2 ANÚNCIOS ====================
+    // ==================== ANÚNCIOS ====================
     const ADS = [
-        { text: "📢 Ótica São Miguel! Qualidade em armações", src: "anun1.mp3" },
-        { text: "📢 Promoção especial! Visite nossa loja", src: "anun2.mp3" }
+        { text: "📢 Ótica São Miguel! Qualidade em armações", src: "as.m4a" },
+        { text: "📢 Promoção especial! Visite nossa loja", src: "sa.m4a" }
     ];
     
     // ==================== FUNÇÕES AUXILIARES ====================
@@ -852,6 +842,7 @@
         const song = currentMusicList[musicCountInCycle];
         document.getElementById('trackName').textContent = song.title;
         document.getElementById('trackArtist').textContent = `🎧 Música ${musicCountInCycle + 1} de 2 • Tocando agora`;
+        document.getElementById('nextTrackInfo').innerHTML = currentMusicList[musicCountInCycle + 1] ? `Próxima: ${currentMusicList[musicCountInCycle + 1].title}` : 'Próxima: --';
         
         audio.src = song.src;
         audio.load();
@@ -902,6 +893,7 @@
         document.getElementById('trackName').textContent = "📢 ANÚNCIO - Ótica São Miguel";
         document.getElementById('trackArtist').textContent = ad.text;
         document.getElementById('anuncioBadge').style.display = 'block';
+        document.getElementById('nextTrackInfo').innerHTML = 'Próxima: --';
         
         audio.src = ad.src;
         audio.load();
@@ -965,7 +957,7 @@
     
     function togglePlayPause() {
         if (!isActive) {
-            showNotification("Clique no botão verde primeiro!", 2000);
+            showNotification("Clique no botão ATIVAR RÁDIO primeiro!", 2000);
             return;
         }
         
@@ -1073,7 +1065,6 @@
             setTimeout(() => ctx.close(), 200);
             
             isActive = true;
-            document.getElementById('splashStartBtn').style.display = 'none';
             document.getElementById('splash').classList.add('hidden');
             setTimeout(() => document.getElementById('splash').style.display = 'none', 800);
             document.getElementById('appRoot').style.display = 'block';
@@ -1094,20 +1085,19 @@
             video.play().catch(e => console.log("Vídeo:", e));
             
             // Inicia com anúncio as.m4a
-            setTimeout(() => {
-                const adInicial = new Audio('as.m4a');
-                adInicial.volume = 0.9;
-                adInicial.play().catch(e => console.log("Anúncio inicial:", e));
-                adInicial.onended = () => {
-                    playAd();
-                };
-            }, 500);
+            console.log("📢 TOCANDO ANÚNCIO INICIAL as.m4a");
+            const adInicial = new Audio('as.m4a');
+            adInicial.volume = 0.9;
+            adInicial.play().catch(e => console.log("Erro anúncio inicial:", e));
+            adInicial.onended = () => {
+                console.log("✅ ANÚNCIO INICIAL FINALIZADO");
+                playAd();
+            };
             
         } catch (err) {
             console.error("Erro:", err);
             showNotification("🔊 Clique NOVAMENTE no botão!", 3000);
             isActive = false;
-            document.getElementById('splashStartBtn').style.display = 'block';
         } finally {
             showLoading(false);
         }
@@ -1196,12 +1186,7 @@
         card.addEventListener('click', () => {
             const genero = card.getAttribute('data-genero');
             if (genero === 'TODOS') {
-                const todas = [...ALL_SONGS];
-                for (let i = todas.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [todas[i], todas[j]] = [todas[j], todas[i]];
-                }
-                currentMusicList = [todas[0], todas[1]];
+                currentMusicList = getRandomTwoSongs();
             } else {
                 const filtradas = ALL_SONGS.filter(m => m.genero === genero);
                 if (filtradas.length >= 2) {
