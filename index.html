@@ -700,7 +700,6 @@
 
     // ==================== PLAYLIST COMPLETA ====================
     const PLAYLIST = [
-        // POP
         { id: 1, title: "Billie Jean", artist: "Michael Jackson", src: "Billie_Jean_muzzik.m4a", genero: "POP" },
         { id: 2, title: "Torn", artist: "Natalie Imbruglia", src: "Torn_muzzik.m4a", genero: "POP" },
         { id: 3, title: "Sunrise", artist: "Simply Red", src: "Sunrise_muzzik.m4a", genero: "POP" },
@@ -710,23 +709,17 @@
         { id: 7, title: "Down Under", artist: "Arthur Rodrigues", src: "Down_Under_muzzik.m4a", genero: "POP" },
         { id: 8, title: "Love Come Down", artist: "Evelyn King", src: "Love_Come_Down_muzzik.m4a", genero: "POP" },
         { id: 9, title: "Sultans of Swing", artist: "Dire Straits", src: "Sultans_of_Swing_muzzik.m4a", genero: "POP" },
-        
-        // PAGODE
         { id: 10, title: "Destilado", artist: "Ludmilla", src: "LUDMILLA_Destilado_muzzik.m4a", genero: "PAGODE" },
         { id: 11, title: "Telepatia", artist: "Ferrugem", src: "Ferrugem_Telepatia_part_Thiaguinho_muzzik.m4a", genero: "PAGODE" },
         { id: 12, title: "Champanhe", artist: "Grupo Menos Mais", src: "Grupo_Menos_Mais_Champanhe_muzzik.m4a", genero: "PAGODE" },
         { id: 13, title: "Lance Livre", artist: "Kamisa 10", src: "Kamisa_10_-_Lance_Livre_NA_VIBE_DO_K10.mp3", genero: "PAGODE" },
         { id: 14, title: "KIiko no Pagode", artist: "KIiko", src: "KIiko_no_Pagode.m4a", genero: "PAGODE" },
-        
-        // SERTANEJO
         { id: 15, title: "Seu Brilho Sumiu", artist: "Israel & Rodolffo", src: "Israel_Rodolffo_MariFernandez_-_Seu_Brilho_Sumiu.mp3", genero: "SERTANEJO" },
         { id: 16, title: "Desbloqueado", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_-_Desbloqueado.mp3", genero: "SERTANEJO" },
         { id: 17, title: "Vontade de Prestar", artist: "Nattan", src: "Nattan_Vontade_de_Prestar_muzzik.m4a", genero: "SERTANEJO" },
         { id: 18, title: "Até Você Voltar", artist: "Marília Mendonça", src: "Mar_lia_Mendon_a_At_Voc_Voltar_muzzik.m4a", genero: "SERTANEJO" },
         { id: 19, title: "Retrovisor", artist: "Gusttavo Lima", src: "Gusttavo_Lima_Retrovisor_DVD_muzzik.m4a", genero: "SERTANEJO" },
         { id: 20, title: "Que Era Eu", artist: "Lauana Prado", src: "LAUANA_PRADO_QUE_ERA_EU_UM_DIA_DE_DOMINGO.m4a", genero: "SERTANEJO" },
-        
-        // MPB
         { id: 21, title: "A Tal Canção Pra Lua", artist: "Vitor Kley", src: "Vitor_Kley_Samuel_Rosa_A_Tal_Can_o_Pra_Lua_muzzik.m4a", genero: "MPB" },
         { id: 22, title: "A Namorada", artist: "Carlinhos Brown", src: "A_Namorada_A_Namorada_Carlinhos_Brown_muzzik.m4a", genero: "MPB" },
         { id: 23, title: "Sorri Sou Rei", artist: "Natiruts", src: "Natiruts_Sorri_Sou_Rei_muzzik.m4a", genero: "MPB" },
@@ -750,7 +743,8 @@
         sourceNode: null,
         animationId: null,
         progressInterval: null,
-        hideTimeout: null
+        hideTimeout: null,
+        currentAdAudio: null
     };
 
     // ==================== FUNÇÕES AUXILIARES ====================
@@ -769,8 +763,10 @@
         return arr; 
     }
 
-    function getRandomSongs(quantidade) {
-        const shuffled = shuffleArray([...PLAYLIST]);
+    function getRandomSongs(quantidade, genero = null) {
+        let musicas = genero ? PLAYLIST.filter(m => m.genero === genero) : [...PLAYLIST];
+        if (musicas.length === 0) musicas = [...PLAYLIST];
+        const shuffled = shuffleArray([...musicas]);
         return shuffled.slice(0, quantidade);
     }
 
@@ -914,7 +910,7 @@
         }
     }
 
-    // ==================== PLAYER ENGINE ====================
+    // ==================== PLAYER ENGINE CORRIGIDA ====================
     const PlayerEngine = {
         formatTime(sec) {
             if (isNaN(sec)) return '0:00';
@@ -930,7 +926,6 @@
             dom.totalTimeEl.textContent = '0:00';
             dom.progressFill.style.width = '0%';
             
-            // Atualizar próxima música
             let nextIdx = state.currentIndex + 1;
             if (nextIdx >= state.filteredPlaylist.length) nextIdx = 0;
             const next = state.filteredPlaylist[nextIdx];
@@ -945,7 +940,14 @@
 
             state.isLoadingTrack = true;
             dom.loadingSpinner.classList.add('show');
+            
+            // Para o áudio atual
             dom.musicPlayer.pause();
+            dom.musicPlayer.currentTime = 0;
+            
+            // Aguarda um pouco
+            await new Promise(r => setTimeout(r, 100));
+            
             dom.musicPlayer.src = music.src;
             dom.musicPlayer.load();
 
@@ -1001,41 +1003,77 @@
         },
 
         async playAd(adSrc, adText) {
-            state.isAdPlaying = true;
-            state.isPlaying = false;
-            dom.anuncioBadge.style.display = 'block';
-            dom.trackMarquee.innerHTML = `<span class="marquee-text">📢 ${adText}</span>`;
-            dom.nextTrackInfo.innerHTML = 'Próxima: --';
-            this.stopProgressTimer();
-            
             return new Promise((resolve) => {
-                const audio = new Audio(adSrc);
-                audio.volume = CONFIG.VOLUME_PLAYER;
+                // Para a música atual
+                dom.musicPlayer.pause();
+                state.isPlaying = false;
+                state.isAdPlaying = true;
+                dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                dom.anuncioBadge.style.display = 'block';
+                dom.trackMarquee.innerHTML = `<span class="marquee-text">📢 ${adText}</span>`;
+                dom.nextTrackInfo.innerHTML = 'Próxima: --';
+                this.stopProgressTimer();
                 
-                audio.play().catch(e => {
-                    console.warn("Erro anúncio:", e);
+                // Remove áudio anterior se existir
+                if (state.currentAdAudio) {
+                    state.currentAdAudio.pause();
+                    state.currentAdAudio.src = '';
+                }
+                
+                // Cria novo áudio para o anúncio
+                const adAudio = new Audio();
+                state.currentAdAudio = adAudio;
+                adAudio.src = adSrc;
+                adAudio.volume = CONFIG.VOLUME_PLAYER;
+                
+                let timeout = setTimeout(() => {
+                    if (adAudio) {
+                        adAudio.pause();
+                        adAudio.src = '';
+                    }
+                    dom.anuncioBadge.style.display = 'none';
+                    state.isAdPlaying = false;
+                    state.currentAdAudio = null;
+                    mostrarNotificacao("⏱️ Anúncio finalizado", 1000);
                     resolve();
-                });
+                }, 8000);
                 
-                audio.onended = () => {
+                adAudio.oncanplaythrough = () => {
+                    adAudio.play().catch(e => {
+                        console.warn("Erro anúncio:", e);
+                        clearTimeout(timeout);
+                        dom.anuncioBadge.style.display = 'none';
+                        state.isAdPlaying = false;
+                        state.currentAdAudio = null;
+                        resolve();
+                    });
+                };
+                
+                adAudio.onended = () => {
+                    clearTimeout(timeout);
+                    adAudio.src = '';
+                    dom.anuncioBadge.style.display = 'none';
+                    state.isAdPlaying = false;
+                    state.currentAdAudio = null;
+                    mostrarNotificacao("📢 Anúncio finalizado", 1000);
                     resolve();
                 };
                 
-                audio.onerror = () => {
-                    console.warn("Erro no arquivo de anúncio");
+                adAudio.onerror = () => {
+                    clearTimeout(timeout);
+                    adAudio.src = '';
+                    dom.anuncioBadge.style.display = 'none';
+                    state.isAdPlaying = false;
+                    state.currentAdAudio = null;
+                    console.warn("Erro no arquivo de anúncio:", adSrc);
                     resolve();
                 };
-                
-                setTimeout(() => {
-                    if (audio) audio.pause();
-                    resolve();
-                }, 10000);
             });
         },
 
         async playNextMusic() {
             if (!state.filteredPlaylist.length) {
-                state.filteredPlaylist = getRandomSongs(2);
+                state.filteredPlaylist = getRandomSongs(2, state.generoAtual === 'MIX' ? null : state.generoAtual);
                 state.currentIndex = 0;
             }
             
@@ -1043,7 +1081,7 @@
             if (music) {
                 this.updateUI(music);
                 const success = await this.playMusic(music);
-                if (!success) {
+                if (!success && state.currentIndex < state.filteredPlaylist.length - 1) {
                     state.currentIndex++;
                     this.playNextMusic();
                 }
@@ -1052,7 +1090,7 @@
 
         async startCycle() {
             state.musicCount = 0;
-            state.filteredPlaylist = getRandomSongs(2);
+            state.filteredPlaylist = getRandomSongs(2, state.generoAtual === 'MIX' ? null : state.generoAtual);
             state.currentIndex = 0;
             await this.playNextMusic();
         },
@@ -1061,17 +1099,16 @@
             if (state.isAdPlaying) return;
             
             state.musicCount++;
-            console.log(`Música ${state.musicCount}/2 tocada`);
+            console.log(`🎵 Música ${state.musicCount}/2 finalizada`);
             
             if (state.musicCount >= 2) {
-                // Toca anúncio sa.m4a
+                await new Promise(r => setTimeout(r, 500));
                 mostrarNotificacao("📢 Intervalo comercial!", 2000);
                 await this.playAd(CONFIG.ANUNCIO_SEQUENCIA, "ANÚNCIO - Ótica São Miguel");
-                dom.anuncioBadge.style.display = 'none';
+                await new Promise(r => setTimeout(r, 500));
                 
-                // Reinicia ciclo com novas músicas
                 state.musicCount = 0;
-                state.filteredPlaylist = getRandomSongs(2);
+                state.filteredPlaylist = getRandomSongs(2, state.generoAtual === 'MIX' ? null : state.generoAtual);
                 state.currentIndex = 0;
                 await this.playNextMusic();
             } else {
@@ -1115,23 +1152,33 @@
                 mostrarNotificacao("Anúncio em execução...", 1500);
                 return;
             }
-            state.isPlaying ? this.pause() : this.playNextMusic();
+            if (state.isPlaying) {
+                this.pause();
+            } else {
+                this.playNextMusic();
+            }
         },
 
         async next() {
-            if (state.isAdPlaying) return;
+            if (state.isAdPlaying) {
+                mostrarNotificacao("Aguarde o anúncio terminar...", 1500);
+                return;
+            }
             this.stopProgressTimer();
             if (state.musicCount < 2) {
                 state.musicCount++;
             }
-            this.onMusicEnded();
+            await this.onMusicEnded();
         },
 
         async prev() {
-            if (state.isAdPlaying) return;
+            if (state.isAdPlaying) {
+                mostrarNotificacao("Aguarde o anúncio terminar...", 1500);
+                return;
+            }
             mostrarNotificacao("⏪ Voltando música...", 1000);
             this.stopProgressTimer();
-            this.onMusicEnded();
+            await this.onMusicEnded();
         }
     };
 
@@ -1148,40 +1195,37 @@
 
     // ==================== PLAYLIST MANAGER ====================
     const PlaylistManager = {
-        filterByGenre(genero) {
+        async filterByGenre(genero) {
             if (state.isAdPlaying) {
                 mostrarNotificacao("Aguarde o anúncio terminar...", 1500);
                 return;
             }
             
             state.generoAtual = genero;
-            let novasMusicas = [];
             
             if (genero === 'TODOS') {
-                novasMusicas = getRandomSongs(2);
                 state.generoAtual = "MIX";
                 updateGenreBadge("MIX");
+                state.filteredPlaylist = getRandomSongs(2, null);
             } else {
                 const musicasDoGenero = PLAYLIST.filter(m => m.genero === genero);
                 if (musicasDoGenero.length === 0) {
-                    novasMusicas = getRandomSongs(2);
+                    state.filteredPlaylist = getRandomSongs(2, null);
                     mostrarNotificacao(`⚠️ Nenhuma música para ${genero}. Carregando todas.`, 2000);
                     state.generoAtual = "MIX";
                     updateGenreBadge("MIX");
                 } else {
-                    const shuffled = shuffleArray([...musicasDoGenero]);
-                    novasMusicas = shuffled.slice(0, 2);
+                    state.filteredPlaylist = getRandomSongs(2, genero);
                     updateGenreBadge(genero);
                 }
             }
             
-            state.filteredPlaylist = novasMusicas;
             state.currentIndex = 0;
             state.musicCount = 0;
             
             if (state.isPlaying) {
                 PlayerEngine.stopProgressTimer();
-                PlayerEngine.playNextMusic();
+                await PlayerEngine.playNextMusic();
             }
         }
     };
@@ -1223,17 +1267,17 @@
         ).join('');
         
         document.querySelectorAll('.search-item').forEach(el => {
-            el.addEventListener('click', () => {
+            el.addEventListener('click', async () => {
                 const id = parseInt(el.dataset.id);
                 const music = PLAYLIST.find(m => m.id === id);
                 if (music && !state.isAdPlaying) {
-                    state.filteredPlaylist = [music, ...getRandomSongs(1)];
+                    state.filteredPlaylist = [music, ...getRandomSongs(1, music.genero)];
                     state.currentIndex = 0;
                     state.musicCount = 0;
                     PlayerEngine.updateUI(music);
                     updateGenreBadge(music.genero);
                     PlayerEngine.stopProgressTimer();
-                    PlayerEngine.playNextMusic();
+                    await PlayerEngine.playNextMusic();
                     domSearch.container.style.display = 'none';
                     mostrarNotificacao(`🔍 Tocando: ${music.title}`, 2500);
                 }
@@ -1276,9 +1320,7 @@
 
         // Configurar modo POP e iniciar ciclo
         state.generoAtual = 'POP';
-        const musicasPOP = PLAYLIST.filter(m => m.genero === 'POP');
-        const shuffledPOP = shuffleArray([...musicasPOP]);
-        state.filteredPlaylist = shuffledPOP.slice(0, 2);
+        state.filteredPlaylist = getRandomSongs(2, 'POP');
         state.currentIndex = 0;
         state.musicCount = 0;
         
@@ -1298,17 +1340,17 @@
         dom.prevBtn.addEventListener('click', () => PlayerEngine.prev());
         dom.nextBtn.addEventListener('click', () => PlayerEngine.next());
         
-        dom.shuffleBtn.addEventListener('click', () => {
+        dom.shuffleBtn.addEventListener('click', async () => {
             if (state.isAdPlaying) {
                 mostrarNotificacao("Aguarde o anúncio terminar...", 1500);
                 return;
             }
-            state.filteredPlaylist = getRandomSongs(2);
+            state.filteredPlaylist = getRandomSongs(2, state.generoAtual === 'MIX' ? null : state.generoAtual);
             state.currentIndex = 0;
             state.musicCount = 0;
             PlayerEngine.updateUI(state.filteredPlaylist[0]);
             PlayerEngine.stopProgressTimer();
-            PlayerEngine.playNextMusic();
+            await PlayerEngine.playNextMusic();
             mostrarNotificacao('🔀 Novas músicas carregadas', 1500);
         });
 
