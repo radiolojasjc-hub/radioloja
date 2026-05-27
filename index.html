@@ -647,44 +647,45 @@
         VIDEO_PRINCIPAL: 'mid.mp4'       // Vídeo que roda o tempo todo
     };
 
-    // ==================== PLAYLIST ====================
+    // ==================== PLAYLIST CORRIGIDA (IDs únicos) ====================
     const PLAYLIST = [
-        // POP
-        { id: 1, title: "Michael_Bubl_Haven_t_Met_You_Yet.m4a", artist: "Michael_Bubl_Haven_t_Met_You_Yet.m4a", src: "Michael_Bubl_Haven_t_Met_You_Yet.m4a", genero: "POP" },
-  { id: 2, title: "Lenny_Kravitz_It_Ain_t_Over_Til_It_s_Over_", artist: "Lenny_Kravitz_It_Ain_t_Over_Til_It_s_Over_muzzik.m4a", src: "Lenny_Kravitz_It_Ain_t_Over_Til_It_s_Over_muzzik.m4a", genero: "POP" },
-  { id: 4, title: "Arthur_Rodrigues_Down_Under_", artist: "Arthur_Rodrigues_Down_Under_muzzik.m4a", src: "Arthur_Rodrigues_Down_Under_muzzik.m4a", genero: "POP" },
-  { id: 5, title: "Michael_Jackson_Billie_Jean", artist: "Michael_Jackson_Billie_Jean", src: "Michael_Jackson_Billie_Jean_muzzik.m4a", genero: "POP" },
-  { id: 6, title: "Evelyn_Champagne_King_Love_Come_Down", artist: "Evelyn_Champagne_King_Love_Come_Down_", src: "Evelyn_Champagne_King_Love_Come_Down_muzzik.m4a", genero: "POP" },
-  { id: 7, title: "Natalie_Imbruglia_Torn", artist: "Natalie_Imbruglia_Torn", src: "Natalie_Imbruglia_Torn_muzzik.m4a", genero: "POP" },
-  { id: 8, title: "Simply_Red_Sunrise", artist: "Simply_Red_Sunrise", src: "Simply_Red_Sunrise_muzzik.m4a", genero: "POP" },
-  { id: 9, title: "Shakira_Hips_Don_t_Lie", artist: "Shakira_Hips_Don_t_Lie_muzzik.m4a", src: "Shakira_Hips_Don_t_Lie_muzzik.m4a", genero: "POP" },
-  { id: 10, title: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a", artist: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a", src: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a", genero: "POP" },
+        // POP (com URLs públicas funcionais)
+        { id: 1, title: "Billie Jean", artist: "Michael Jackson", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "POP" },
+        { id: 2, title: "Torn", artist: "Natalie Imbruglia", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero: "POP" },
+        { id: 3, title: "Sunrise", artist: "Simply Red", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "POP" },
+        { id: 4, title: "Hips Don't Lie", artist: "Shakira", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", genero: "POP" },
+        { id: 5, title: "Haven't Met You Yet", artist: "Michael Bublé", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", genero: "POP" },
+        { id: 6, title: "It Ain't Over Til It's Over", artist: "Lenny Kravitz", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", genero: "POP" },
+        { id: 7, title: "Down Under", artist: "Arthur Rodrigues", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3", genero: "POP" },
+        { id: 8, title: "Love Come Down", artist: "Evelyn Champagne King", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3", genero: "POP" },
+        { id: 9, title: "Sultans of Swing", artist: "Dire Straits", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3", genero: "POP" },
+        
         // PAGODE
-        { id: 6, title: "Deixa Acontecer", artist: "Grupo Revelação", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", genero: "PAGODE" },
-        { id: 7, title: "Coração Radiante", artist: "Grupo Revelação", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3", genero: "PAGODE" },
-        { id: 8, title: "Tá Escrito", artist: "Grupo Revelação", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3", genero: "PAGODE" },
-        { id: 9, title: "Grades do Coração", artist: "Grupo Revelação", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3", genero: "PAGODE" },
-        { id: 10, title: "Compromisso", artist: "Grupo Revelação", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3", genero: "PAGODE" },
+        { id: 10, title: "Deixa Acontecer", artist: "Grupo Revelação", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3", genero: "PAGODE" },
+        { id: 11, title: "Coração Radiante", artist: "Grupo Revelação", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "PAGODE" },
+        { id: 12, title: "Tá Escrito", artist: "Grupo Revelação", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero: "PAGODE" },
+        { id: 13, title: "Grades do Coração", artist: "Grupo Revelação", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "PAGODE" },
+        { id: 14, title: "Compromisso", artist: "Grupo Revelação", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", genero: "PAGODE" },
         
         // SERTANEJO
-        { id: 11, title: "Evidências", artist: "Chitãozinho & Xororó", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3", genero: "SERTANEJO" },
-        { id: 12, title: "Fogão de Lenha", artist: "Chitãozinho & Xororó", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3", genero: "SERTANEJO" },
-        { id: 13, title: "Sinônimos", artist: "Zé Ramalho", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3", genero: "SERTANEJO" },
-        { id: 14, title: "Boate Azul", artist: "Bruno & Marrone", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3", genero: "SERTANEJO" },
-        { id: 15, title: "Dormi na Praça", artist: "Bruno & Marrone", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3", genero: "SERTANEJO" },
+        { id: 15, title: "Evidências", artist: "Chitãozinho & Xororó", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", genero: "SERTANEJO" },
+        { id: 16, title: "Fogão de Lenha", artist: "Chitãozinho & Xororó", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", genero: "SERTANEJO" },
+        { id: 17, title: "Sinônimos", artist: "Zé Ramalho", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3", genero: "SERTANEJO" },
+        { id: 18, title: "Boate Azul", artist: "Bruno & Marrone", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3", genero: "SERTANEJO" },
+        { id: 19, title: "Dormi na Praça", artist: "Bruno & Marrone", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3", genero: "SERTANEJO" },
         
         // MPB
-        { id: 16, title: "Garota de Ipanema", artist: "Tom Jobim", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3", genero: "MPB" },
-        { id: 17, title: "Chega de Saudade", artist: "João Gilberto", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "MPB" },
-        { id: 18, title: "Águas de Março", artist: "Elis Regina", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero: "MPB" },
-        { id: 19, title: "Como Nossos Pais", artist: "Belchior", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "MPB" },
-        { id: 20, title: "O Que Será", artist: "Chico Buarque", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", genero: "MPB" },
+        { id: 20, title: "Garota de Ipanema", artist: "Tom Jobim", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3", genero: "MPB" },
+        { id: 21, title: "Chega de Saudade", artist: "João Gilberto", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "MPB" },
+        { id: 22, title: "Águas de Março", artist: "Elis Regina", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero: "MPB" },
+        { id: 23, title: "Como Nossos Pais", artist: "Belchior", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "MPB" },
+        { id: 24, title: "O Que Será", artist: "Chico Buarque", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", genero: "MPB" },
         
         // AO VIVO
-        { id: 21, title: "Live Especial Pop", artist: "Rádio Loja", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", genero: "POP", tipo: "ao vivo" },
-        { id: 22, title: "Live Sertanejo", artist: "Rádio Loja", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", genero: "SERTANEJO", tipo: "ao vivo" },
-        { id: 23, title: "Live Pagode", artist: "Rádio Loja", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3", genero: "PAGODE", tipo: "ao vivo" },
-        { id: 24, title: "Live MPB", artist: "Rádio Loja", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3", genero: "MPB", tipo: "ao vivo" }
+        { id: 25, title: "Live Especial Pop", artist: "Rádio Loja", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", genero: "POP", tipo: "ao vivo" },
+        { id: 26, title: "Live Sertanejo", artist: "Rádio Loja", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", genero: "SERTANEJO", tipo: "ao vivo" },
+        { id: 27, title: "Live Pagode", artist: "Rádio Loja", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3", genero: "PAGODE", tipo: "ao vivo" },
+        { id: 28, title: "Live MPB", artist: "Rádio Loja", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3", genero: "MPB", tipo: "ao vivo" }
     ];
 
     // ==================== ESTADO GLOBAL ====================
@@ -787,38 +788,44 @@
         results: document.getElementById('searchResults')
     };
     
-    document.getElementById('closeSearchBtn').addEventListener('click', () => {
-        domSearch.container.style.display = 'none';
-    });
+    if (document.getElementById('closeSearchBtn')) {
+        document.getElementById('closeSearchBtn').addEventListener('click', () => {
+            domSearch.container.style.display = 'none';
+        });
+    }
 
     // ==================== VISUALIZER ====================
     async function setupVisualizer() {
         if (state.audioContext) return;
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        state.audioContext = new AudioContext();
-        state.analyser = state.audioContext.createAnalyser();
-        state.analyser.fftSize = 64;
-        state.sourceNode = state.audioContext.createMediaElementSource(dom.musicPlayer);
-        state.sourceNode.connect(state.analyser);
-        state.analyser.connect(state.audioContext.destination);
-        
-        function updateBars() {
-            if (!state.analyser || !state.isPlaying) {
-                dom.visualizerBars.forEach(b => b.style.height = '4px');
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            state.audioContext = new AudioContext();
+            state.analyser = state.audioContext.createAnalyser();
+            state.analyser.fftSize = 64;
+            state.sourceNode = state.audioContext.createMediaElementSource(dom.musicPlayer);
+            state.sourceNode.connect(state.analyser);
+            state.analyser.connect(state.audioContext.destination);
+            
+            function updateBars() {
+                if (!state.analyser || !state.isPlaying) {
+                    dom.visualizerBars.forEach(b => b.style.height = '4px');
+                    state.animationId = requestAnimationFrame(updateBars);
+                    return;
+                }
+                const dataArray = new Uint8Array(state.analyser.frequencyBinCount);
+                state.analyser.getByteFrequencyData(dataArray);
+                const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+                const scale = Math.min(28, avg / 4);
+                dom.visualizerBars.forEach((bar, idx) => {
+                    const h = 4 + (scale * (idx + 1) / 4);
+                    bar.style.height = `${Math.min(36, h)}px`;
+                });
                 state.animationId = requestAnimationFrame(updateBars);
-                return;
             }
-            const dataArray = new Uint8Array(state.analyser.frequencyBinCount);
-            state.analyser.getByteFrequencyData(dataArray);
-            const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-            const scale = Math.min(28, avg / 4);
-            dom.visualizerBars.forEach((bar, idx) => {
-                const h = 4 + (scale * (idx + 1) / 4);
-                bar.style.height = `${Math.min(36, h)}px`;
-            });
-            state.animationId = requestAnimationFrame(updateBars);
+            updateBars();
+        } catch (error) {
+            console.warn("Visualizer error:", error);
         }
-        updateBars();
     }
 
     // ==================== PLAYER ENGINE ====================
@@ -850,9 +857,7 @@
             dom.musicPlayer.src = track.src;
             dom.musicPlayer.load();
             
-            atualizarTrackInfo(track);
-            updateGenreBadge(track.genero);
-            // NÃO MUDA O VÍDEO - mantém mid.mp4 sempre
+            this.updateUI(track);
 
             return new Promise((resolve) => {
                 let timeout = setTimeout(() => {
@@ -891,7 +896,7 @@
                         state.isLoadingTrack = false;
                         state.isPlaying = false;
                         dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                        console.error(e);
+                        console.error("Play error:", e);
                         resolve(false);
                     }
                 };
@@ -900,11 +905,22 @@
                     clearTimeout(timeout);
                     dom.loadingSpinner.classList.remove('show');
                     state.isLoadingTrack = false;
-                    mostrarNotificacao(`Erro: ${track.title}`, 2000);
+                    mostrarNotificacao(`Erro ao carregar: ${track.title}`, 2000);
                     setTimeout(() => this.next(), 500);
                     resolve(false);
                 };
             });
+        },
+
+        updateUI(track) {
+            dom.trackMarquee.innerHTML = `<span class="marquee-text">🎵 ${track.title} - ${track.artist} [${track.genero}]</span>`;
+            let nextIdx = state.currentIndex + 1;
+            if (nextIdx >= state.filteredPlaylist.length) nextIdx = 0;
+            const next = state.filteredPlaylist[nextIdx];
+            dom.nextTrackInfo.innerHTML = next ? `Próxima: ${next.title} - ${next.artist}` : 'Próxima: --';
+            dom.currentTimeEl.textContent = '0:00';
+            dom.totalTimeEl.textContent = '0:00';
+            dom.progressFill.style.width = '0%';
         },
 
         pause() {
@@ -924,7 +940,6 @@
             if (state.progressInterval) clearInterval(state.progressInterval);
             
             state.contadorMusicas++;
-            console.log(`🎵 Música ${state.contadorMusicas}/${CONFIG.MUSICAS_ENTRE_ANUNCIOS}`);
             
             // Verifica se deve tocar anúncios
             if (state.contadorMusicas >= CONFIG.MUSICAS_ENTRE_ANUNCIOS && !state.isAoVivo) {
@@ -1000,17 +1015,22 @@
                 }
 
                 dom.anuncioBadge.style.display = 'block';
-                mostrarNotificacao("📢 Intervalo comercial - 2 anúncios...", 3000);
+                mostrarNotificacao("📢 Intervalo comercial...", 3000);
 
-                // Toca 2 anúncios em sequência
+                // Toca anúncios em sequência
                 for (let i = 0; i < CONFIG.QUANTIDADE_ANUNCIOS; i++) {
                     mostrarNotificacao(`📢 Anúncio ${i + 1} de ${CONFIG.QUANTIDADE_ANUNCIOS}...`, 2000);
                     await new Promise((res) => {
                         const anuncioAudio = new Audio(CONFIG.ANUNCIO_SEQUENCIA);
                         anuncioAudio.volume = CONFIG.VOLUME_PLAYER;
-                        anuncioAudio.play().catch(e => console.warn);
+                        anuncioAudio.play().catch(e => {
+                            console.warn("Anúncio error:", e);
+                            res();
+                        });
                         anuncioAudio.onended = () => res();
                         anuncioAudio.onerror = () => res();
+                        // Timeout para não travar
+                        setTimeout(() => res(), 3000);
                     });
                 }
 
@@ -1033,18 +1053,6 @@
         dom.trackMarquee.innerHTML = `<span class="marquee-text">${msg}</span>`;
     }
 
-    function atualizarTrackInfo(track) {
-        if (!track) return;
-        dom.trackMarquee.innerHTML = `<span class="marquee-text">🎵 ${track.title} - ${track.artist} [${track.genero}]</span>`;
-        let nextIdx = state.currentIndex + 1;
-        if (nextIdx >= state.filteredPlaylist.length) nextIdx = 0;
-        const next = state.filteredPlaylist[nextIdx];
-        dom.nextTrackInfo.innerHTML = next ? `Próxima: ${next.title} - ${next.artist}` : 'Próxima: --';
-        dom.currentTimeEl.textContent = '0:00';
-        dom.totalTimeEl.textContent = '0:00';
-        dom.progressFill.style.width = '0%';
-    }
-
     function updateGenreBadge(genero) {
         const g = genero === 'MIX' ? 'TODOS' : genero;
         dom.genreBadge.innerHTML = `<i class="fas fa-music"></i> ${g}`;
@@ -1056,7 +1064,7 @@
     const PlaylistManager = {
         filterByGenre(genero) {
             if (genero === 'LIVE') {
-                ativarModoAoVivo();
+                this.ativarModoAoVivo();
                 return;
             }
             state.isAoVivo = false;
@@ -1079,31 +1087,33 @@
                 }
             }
             
-            state.filteredPlaylist = nova;
+            state.filteredPlaylist = shuffleArray(nova);
             state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
             state.contadorMusicas = 0;
-            atualizarTrackInfo(state.filteredPlaylist[state.currentIndex]);
-            // NÃO MUDA O VÍDEO - mantém mid.mp4
+            if (state.filteredPlaylist[state.currentIndex]) {
+                PlayerEngine.updateUI(state.filteredPlaylist[state.currentIndex]);
+            }
             
+            if (state.isPlaying) PlayerEngine.play();
+        },
+
+        ativarModoAoVivo() {
+            state.isAoVivo = true;
+            dom.genreBadge.innerHTML = '<i class="fas fa-broadcast-tower"></i> LIVE';
+            let musicas = PLAYLIST.filter(m => m.tipo === "ao vivo");
+            if (!musicas.length) musicas = shuffleArray([...PLAYLIST]);
+            state.filteredPlaylist = shuffleArray(musicas);
+            state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
+            state.historicoMusicasLive = [];
+            state.contadorMusicas = 0;
+            if (state.filteredPlaylist[0]) {
+                PlayerEngine.updateUI(state.filteredPlaylist[0]);
+            }
+            updateMarquee();
+            mostrarNotificacao('🔴 Modo AO VIVO ativado!', 2000);
             if (state.isPlaying) PlayerEngine.play();
         }
     };
-
-    function ativarModoAoVivo() {
-        state.isAoVivo = true;
-        dom.genreBadge.innerHTML = '<i class="fas fa-broadcast-tower"></i> LIVE';
-        let musicas = PLAYLIST.filter(m => m.tipo === "ao vivo");
-        if (!musicas.length) musicas = shuffleArray([...PLAYLIST]);
-        state.filteredPlaylist = shuffleArray(musicas);
-        state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
-        state.historicoMusicasLive = [];
-        state.contadorMusicas = 0;
-        atualizarTrackInfo(state.filteredPlaylist[0]);
-        updateMarquee();
-        mostrarNotificacao('🔴 Modo AO VIVO ativado!', 2000);
-        // NÃO MUDA O VÍDEO - mantém mid.mp4
-        if (state.isPlaying) PlayerEngine.play();
-    }
 
     // ==================== SEARCH ====================
     function performSearch(q) {
@@ -1130,7 +1140,7 @@
                     state.filteredPlaylist.unshift(music);
                     state.currentIndex = 0;
                     state.contadorMusicas = 0;
-                    atualizarTrackInfo(music);
+                    PlayerEngine.updateUI(music);
                     updateGenreBadge(music.genero);
                     PlayerEngine.play();
                     domSearch.container.style.display = 'none';
@@ -1163,7 +1173,7 @@
         dom.appRoot.style.display = 'block';
         
         // Garante que o vídeo principal mid.mp4 está rodando
-        dom.mainVideo.play().catch(e => console.warn);
+        dom.mainVideo.play().catch(e => console.warn("Video error:", e));
 
         // Setup visualizer
         await setupVisualizer();
@@ -1171,7 +1181,7 @@
             await state.audioContext.resume();
         }
 
-        // Toca anúncio inicial as.m4a
+        // Toca anúncio inicial (se o arquivo existir)
         mostrarNotificacao("🎙️ Iniciando com anúncio...", 3000);
         dom.anuncioBadge.style.display = 'block';
         
@@ -1184,6 +1194,7 @@
             });
             anuncioInicial.onended = () => resolve();
             anuncioInicial.onerror = () => resolve();
+            setTimeout(() => resolve(), 5000);
         });
         
         dom.anuncioBadge.style.display = 'none';
@@ -1198,7 +1209,9 @@
         state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
         state.contadorMusicas = 0;
         
-        atualizarTrackInfo(state.filteredPlaylist[state.currentIndex]);
+        if (state.filteredPlaylist[state.currentIndex]) {
+            PlayerEngine.updateUI(state.filteredPlaylist[state.currentIndex]);
+        }
         updateGenreBadge('MPB');
         updateMarquee();
         
@@ -1209,7 +1222,8 @@
     // ==================== EVENT LISTENERS ====================
     function setupEventListeners() {
         // Splash button
-        document.getElementById('splashStartBtn').addEventListener('click', iniciarRadio);
+        const splashBtn = document.getElementById('splashStartBtn');
+        if (splashBtn) splashBtn.addEventListener('click', iniciarRadio);
 
         // Player controls
         dom.playBtn.addEventListener('click', () => PlayerEngine.togglePlayPause());
@@ -1225,18 +1239,21 @@
             state.filteredPlaylist = shuffleArray(state.filteredPlaylist);
             state.currentIndex = 0;
             state.contadorMusicas = 0;
-            atualizarTrackInfo(state.filteredPlaylist[0]);
+            PlayerEngine.updateUI(state.filteredPlaylist[0]);
             mostrarNotificacao(state.shuffleMode ? '🔀 Aleatório ativado' : '➡️ Sequencial', 1500);
         });
 
         // Progress bar
-        document.getElementById('progressBar').addEventListener('click', e => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            if (dom.musicPlayer.duration) {
-                dom.musicPlayer.currentTime = percent * dom.musicPlayer.duration;
-            }
-        });
+        const progressBar = document.getElementById('progressBar');
+        if (progressBar) {
+            progressBar.addEventListener('click', e => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                if (dom.musicPlayer.duration) {
+                    dom.musicPlayer.currentTime = percent * dom.musicPlayer.duration;
+                }
+            });
+        }
 
         // Genre button
         dom.genreButton.addEventListener('click', () => dom.genresModal.classList.add('open'));
@@ -1249,9 +1266,12 @@
             });
         });
         
-        document.getElementById('closeGenresBtn').addEventListener('click', () => {
-            dom.genresModal.classList.remove('open');
-        });
+        const closeGenresBtn = document.getElementById('closeGenresBtn');
+        if (closeGenresBtn) {
+            closeGenresBtn.addEventListener('click', () => {
+                dom.genresModal.classList.remove('open');
+            });
+        }
 
         // Menu
         dom.menuButton.addEventListener('click', (e) => {
@@ -1266,87 +1286,121 @@
         });
 
         // Search
-        document.getElementById('searchMenuBtn').addEventListener('click', () => {
-            domSearch.container.style.display = 'block';
-            domSearch.input.focus();
-            dom.menuPopup.classList.remove('open');
-        });
+        const searchMenuBtn = document.getElementById('searchMenuBtn');
+        if (searchMenuBtn) {
+            searchMenuBtn.addEventListener('click', () => {
+                domSearch.container.style.display = 'block';
+                domSearch.input.focus();
+                dom.menuPopup.classList.remove('open');
+            });
+        }
         
-        domSearch.input.addEventListener('input', e => performSearch(e.target.value));
+        if (domSearch.input) {
+            domSearch.input.addEventListener('input', e => performSearch(e.target.value));
+        }
 
         // Fullscreen
-        document.getElementById('fullscreenMenuBtn').addEventListener('click', () => {
-            document.documentElement.requestFullscreen();
-            dom.menuPopup.classList.remove('open');
-        });
+        const fullscreenBtn = document.getElementById('fullscreenMenuBtn');
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', () => {
+                document.documentElement.requestFullscreen();
+                dom.menuPopup.classList.remove('open');
+            });
+        }
 
         // Share
-        document.getElementById('shareMenuBtn').addEventListener('click', () => {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Rádio Loja',
-                    text: '🎵 Música para seu Negócio',
-                    url: location.href
-                });
-            } else {
-                navigator.clipboard.writeText(location.href);
-                mostrarNotificacao('Link copiado!', 1500);
-            }
-            dom.menuPopup.classList.remove('open');
-        });
+        const shareBtn = document.getElementById('shareMenuBtn');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', () => {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Rádio Loja',
+                        text: '🎵 Música para seu Negócio',
+                        url: location.href
+                    });
+                } else {
+                    navigator.clipboard.writeText(location.href);
+                    mostrarNotificacao('Link copiado!', 1500);
+                }
+                dom.menuPopup.classList.remove('open');
+            });
+        }
 
         // Stats
-        document.getElementById('statsMenuBtn').addEventListener('click', () => {
-            document.getElementById('statTotalPlayed').textContent = state.stats.totalPlayed;
-            const h = Math.floor(state.stats.totalSeconds / 3600);
-            const m = Math.floor((state.stats.totalSeconds % 3600) / 60);
-            document.getElementById('statTotalTime').textContent = `${h}h ${m}m`;
-            
-            let top = "Nenhum", max = 0;
-            for (let [g, c] of Object.entries(state.stats.genreCount)) {
-                if (c > max) { max = c; top = g; }
-            }
-            document.getElementById('statTopGenre').textContent = top;
-            document.getElementById('statStreak').textContent = state.stats.currentStreak;
-            
-            dom.statsModal.classList.add('open');
-            dom.menuPopup.classList.remove('open');
-        });
+        const statsBtn = document.getElementById('statsMenuBtn');
+        if (statsBtn) {
+            statsBtn.addEventListener('click', () => {
+                document.getElementById('statTotalPlayed').textContent = state.stats.totalPlayed;
+                const h = Math.floor(state.stats.totalSeconds / 3600);
+                const m = Math.floor((state.stats.totalSeconds % 3600) / 60);
+                document.getElementById('statTotalTime').textContent = `${h}h ${m}m`;
+                
+                let top = "Nenhum", max = 0;
+                for (let [g, c] of Object.entries(state.stats.genreCount)) {
+                    if (c > max) { max = c; top = g; }
+                }
+                document.getElementById('statTopGenre').textContent = top;
+                document.getElementById('statStreak').textContent = state.stats.currentStreak;
+                
+                dom.statsModal.classList.add('open');
+                dom.menuPopup.classList.remove('open');
+            });
+        }
 
         // Manual
-        document.getElementById('manualMenuBtn').addEventListener('click', () => {
-            dom.manualModal.classList.add('open');
-            dom.menuPopup.classList.remove('open');
-        });
+        const manualBtn = document.getElementById('manualMenuBtn');
+        if (manualBtn) {
+            manualBtn.addEventListener('click', () => {
+                dom.manualModal.classList.add('open');
+                dom.menuPopup.classList.remove('open');
+            });
+        }
 
         // Feedback
-        document.getElementById('feedbackMenuBtn').addEventListener('click', () => {
-            dom.feedbackModal.classList.toggle('open');
-            dom.menuPopup.classList.remove('open');
-        });
+        const feedbackBtn = document.getElementById('feedbackMenuBtn');
+        if (feedbackBtn) {
+            feedbackBtn.addEventListener('click', () => {
+                dom.feedbackModal.classList.toggle('open');
+                dom.menuPopup.classList.remove('open');
+            });
+        }
 
         // Site
-        document.getElementById('siteMenuBtn').addEventListener('click', () => {
-            window.open(CONFIG.SITE_URL, '_blank');
-            dom.menuPopup.classList.remove('open');
-        });
+        const siteMenuBtn = document.getElementById('siteMenuBtn');
+        if (siteMenuBtn) {
+            siteMenuBtn.addEventListener('click', () => {
+                window.open(CONFIG.SITE_URL, '_blank');
+                dom.menuPopup.classList.remove('open');
+            });
+        }
 
         // WhatsApp
-        document.getElementById('whatsappMenuBtn').addEventListener('click', () => {
-            window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=Olá!%20Gostaria%20de%20falar%20sobre%20a%20Rádio%20Loja`, '_blank');
-            dom.menuPopup.classList.remove('open');
-        });
+        const whatsappMenuBtn = document.getElementById('whatsappMenuBtn');
+        if (whatsappMenuBtn) {
+            whatsappMenuBtn.addEventListener('click', () => {
+                window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=Olá!%20Gostaria%20de%20falar%20sobre%20a%20Rádio%20Loja`, '_blank');
+                dom.menuPopup.classList.remove('open');
+            });
+        }
 
         // Close buttons
-        document.getElementById('closeStatsBtn').addEventListener('click', () => dom.statsModal.classList.remove('open'));
-        document.getElementById('closeManualBtn').addEventListener('click', () => dom.manualModal.classList.remove('open'));
+        const closeStatsBtn = document.getElementById('closeStatsBtn');
+        if (closeStatsBtn) {
+            closeStatsBtn.addEventListener('click', () => dom.statsModal.classList.remove('open'));
+        }
+        
+        const closeManualBtn = document.getElementById('closeManualBtn');
+        if (closeManualBtn) {
+            closeManualBtn.addEventListener('click', () => dom.manualModal.classList.remove('open'));
+        }
 
         // Feedback stars
         let currentRating = 0;
-        document.querySelectorAll('#ratingStars .star').forEach(star => {
+        const stars = document.querySelectorAll('#ratingStars .star');
+        stars.forEach(star => {
             star.addEventListener('click', () => {
                 currentRating = parseInt(star.dataset.rating);
-                document.querySelectorAll('#ratingStars .star').forEach((s, i) => {
+                stars.forEach((s, i) => {
                     if (i < currentRating) {
                         s.classList.add('fas', 'active');
                         s.classList.remove('far');
@@ -1358,35 +1412,55 @@
             });
         });
 
-        document.getElementById('cancelFeedback').addEventListener('click', () => {
-            dom.feedbackModal.classList.remove('open');
-            document.getElementById('feedbackText').value = '';
-            currentRating = 0;
-        });
+        const cancelFeedback = document.getElementById('cancelFeedback');
+        if (cancelFeedback) {
+            cancelFeedback.addEventListener('click', () => {
+                dom.feedbackModal.classList.remove('open');
+                const feedbackText = document.getElementById('feedbackText');
+                if (feedbackText) feedbackText.value = '';
+                currentRating = 0;
+                stars.forEach(s => {
+                    s.classList.remove('fas', 'active');
+                    s.classList.add('far');
+                });
+            });
+        }
 
-        document.getElementById('sendFeedback').addEventListener('click', () => {
-            if (currentRating === 0) {
-                mostrarNotificacao('⭐ Selecione uma nota', 2000);
-                return;
-            }
-            let msg = `🎵 *Rádio Loja - Feedback*\n⭐ Nota: ${'★'.repeat(currentRating)}${'☆'.repeat(5 - currentRating)}\n`;
-            const text = document.getElementById('feedbackText').value.trim();
-            if (text) msg += `💬 ${text}\n`;
-            window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-            mostrarNotificacao('✅ Obrigado pelo feedback!', 2000);
-            dom.feedbackModal.classList.remove('open');
-            document.getElementById('feedbackText').value = '';
-            currentRating = 0;
-        });
+        const sendFeedback = document.getElementById('sendFeedback');
+        if (sendFeedback) {
+            sendFeedback.addEventListener('click', () => {
+                if (currentRating === 0) {
+                    mostrarNotificacao('⭐ Selecione uma nota', 2000);
+                    return;
+                }
+                let msg = `🎵 *Rádio Loja - Feedback*\n⭐ Nota: ${'★'.repeat(currentRating)}${'☆'.repeat(5 - currentRating)}\n`;
+                const text = document.getElementById('feedbackText')?.value.trim() || '';
+                if (text) msg += `💬 ${text}\n`;
+                window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+                mostrarNotificacao('✅ Obrigado pelo feedback!', 2000);
+                dom.feedbackModal.classList.remove('open');
+                const feedbackText = document.getElementById('feedbackText');
+                if (feedbackText) feedbackText.value = '';
+                currentRating = 0;
+                stars.forEach(s => {
+                    s.classList.remove('fas', 'active');
+                    s.classList.add('far');
+                });
+            });
+        }
 
         // Floating buttons
-        dom.whatsappBtn.addEventListener('click', () => {
-            window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=Olá!%20Gostaria%20de%20falar%20sobre%20a%20Rádio%20Loja`, '_blank');
-        });
+        if (dom.whatsappBtn) {
+            dom.whatsappBtn.addEventListener('click', () => {
+                window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=Olá!%20Gostaria%20de%20falar%20sobre%20a%20Rádio%20Loja`, '_blank');
+            });
+        }
         
-        dom.siteBtn.addEventListener('click', () => {
-            window.open(CONFIG.SITE_URL, '_blank');
-        });
+        if (dom.siteBtn) {
+            dom.siteBtn.addEventListener('click', () => {
+                window.open(CONFIG.SITE_URL, '_blank');
+            });
+        }
     }
 
     // ==================== INIT ====================
@@ -1406,7 +1480,9 @@
         state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
         state.contadorMusicas = 0;
         
-        atualizarTrackInfo(state.filteredPlaylist[state.currentIndex]);
+        if (state.filteredPlaylist[state.currentIndex]) {
+            PlayerEngine.updateUI(state.filteredPlaylist[state.currentIndex]);
+        }
         updateGenreBadge('MPB');
         
         setupEventListeners();
@@ -1423,7 +1499,7 @@
     // Start
     init();
 
-    // Service Worker
+    // Service Worker (opcional)
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(e => console.log("SW não registrado", e));
     }
