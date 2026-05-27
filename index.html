@@ -31,7 +31,7 @@
             width: 100%; 
             height: 100%; 
             z-index: 9999; 
-            transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), visibility 0.8s; 
+            transition: opacity 0.8s ease, visibility 0.8s ease; 
             overflow: hidden; 
         }
         #splash-video { 
@@ -605,7 +605,7 @@
     
     <button class="genre-button" id="genreButton"><i class="fas fa-music"></i></button>
     
-    <div class="genre-badge" id="genreBadge"><i class="fas fa-heart"></i> MPB</div>
+    <div class="genre-badge" id="genreBadge"><i class="fas fa-heart"></i> POP</div>
     <div class="anuncio-badge" id="anuncioBadge">📢 ANÚNCIO</div>
     <div class="visualizer" id="visualizer">
         <div class="visualizer-bar"></div><div class="visualizer-bar"></div><div class="visualizer-bar"></div><div class="visualizer-bar"></div>
@@ -693,7 +693,9 @@
     const CONFIG = {
         WHATSAPP_NUMBER: '5512988461978',
         SITE_URL: 'https://oticassaomiguel.com.br/',
-        VOLUME_PLAYER: 0.9
+        VOLUME_PLAYER: 0.9,
+        ANUNCIO_INICIAL: 'as.m4a',
+        ANUNCIO_SEQUENCIA: 'sa.m4a'
     };
 
     // ==================== PLAYLIST COMPLETA ====================
@@ -735,9 +737,11 @@
     // ==================== ESTADO GLOBAL ====================
     const state = {
         isPlaying: false,
-        generoAtual: 'MPB',
+        isAdPlaying: false,
+        generoAtual: 'POP',
         currentIndex: 0,
         filteredPlaylist: [],
+        musicCount: 0,
         isLoadingTrack: false,
         controlsVisible: true,
         stats: { totalPlayed: 0, totalSeconds: 0, genreCount: {}, currentStreak: 0 },
@@ -765,6 +769,11 @@
         return arr; 
     }
 
+    function getRandomSongs(quantidade) {
+        const shuffled = shuffleArray([...PLAYLIST]);
+        return shuffled.slice(0, quantidade);
+    }
+
     function salvarStats() { 
         localStorage.setItem('radio_loja_stats', JSON.stringify(state.stats)); 
     }
@@ -786,11 +795,7 @@
                 });
                 mostrarNotificacao(`✅ Conectado a: ${device.name || 'Dispositivo'}`, 3000);
             } catch(error) {
-                if (error.name === 'NotFoundError') {
-                    mostrarNotificacao("❌ Nenhum dispositivo encontrado", 2000);
-                } else {
-                    mostrarNotificacao("❌ Conexão cancelada", 2000);
-                }
+                mostrarNotificacao("❌ Conexão cancelada", 2000);
             }
         } else {
             mostrarNotificacao("⚠️ Bluetooth só funciona no Chrome ou Edge", 3000);
@@ -841,6 +846,7 @@
         appRoot: document.getElementById('appRoot'),
         loadingSpinner: document.getElementById('loadingSpinner'),
         genreBadge: document.getElementById('genreBadge'),
+        anuncioBadge: document.getElementById('anuncioBadge'),
         visualizerBars: document.querySelectorAll('.visualizer-bar'),
         genreButton: document.getElementById('genreButton'),
         menuButton: document.getElementById('menuButton'),
@@ -917,34 +923,37 @@
             return `${m}:${s < 10 ? '0' : ''}${s}`;
         },
 
-        async play() {
-            if (state.isLoadingTrack) return;
-            if (!state.filteredPlaylist.length) {
-                mostrarNotificacao("Nenhuma música disponível", 2000);
-                return false;
-            }
+        updateUI(track) {
+            if (!track) return;
+            dom.trackMarquee.innerHTML = `<span class="marquee-text">🎵 ${track.title} - ${track.artist} [${track.genero}]</span>`;
+            dom.currentTimeEl.textContent = '0:00';
+            dom.totalTimeEl.textContent = '0:00';
+            dom.progressFill.style.width = '0%';
             
-            const track = state.filteredPlaylist[state.currentIndex];
-            if (!track || !track.src) {
-                mostrarNotificacao("Música inválida, pulando...", 1500);
-                this.next();
+            // Atualizar próxima música
+            let nextIdx = state.currentIndex + 1;
+            if (nextIdx >= state.filteredPlaylist.length) nextIdx = 0;
+            const next = state.filteredPlaylist[nextIdx];
+            dom.nextTrackInfo.innerHTML = next ? `Próxima: ${next.title} - ${next.artist}` : 'Próxima: --';
+        },
+
+        async playMusic(music) {
+            if (!music || !music.src) {
+                console.error("Música inválida");
                 return false;
             }
 
             state.isLoadingTrack = true;
             dom.loadingSpinner.classList.add('show');
             dom.musicPlayer.pause();
-            dom.musicPlayer.src = track.src;
+            dom.musicPlayer.src = music.src;
             dom.musicPlayer.load();
-            
-            this.updateUI(track);
 
             return new Promise((resolve) => {
                 let timeout = setTimeout(() => {
                     dom.loadingSpinner.classList.remove('show');
                     state.isLoadingTrack = false;
-                    mostrarNotificacao(`Timeout: ${track.title}`, 2000);
-                    this.next();
+                    mostrarNotificacao(`Timeout: ${music.title}`, 2000);
                     resolve(false);
                 }, 10000);
 
@@ -959,12 +968,13 @@
                         }
                         await dom.musicPlayer.play();
                         state.isPlaying = true;
+                        state.isAdPlaying = false;
                         dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                         this.startProgressTimer();
                         
                         state.stats.totalPlayed++;
-                        if (!state.stats.genreCount[track.genero]) state.stats.genreCount[track.genero] = 0;
-                        state.stats.genreCount[track.genero]++;
+                        if (!state.stats.genreCount[music.genero]) state.stats.genreCount[music.genero] = 0;
+                        state.stats.genreCount[music.genero]++;
                         state.stats.currentStreak++;
                         salvarStats();
                         
@@ -984,54 +994,90 @@
                     clearTimeout(timeout);
                     dom.loadingSpinner.classList.remove('show');
                     state.isLoadingTrack = false;
-                    mostrarNotificacao(`Erro: ${track.title}`, 2000);
-                    setTimeout(() => this.next(), 500);
+                    mostrarNotificacao(`Erro: ${music.title}`, 2000);
                     resolve(false);
                 };
             });
         },
 
-        updateUI(track) {
-            dom.trackMarquee.innerHTML = `<span class="marquee-text">🎵 ${track.title} - ${track.artist} [${track.genero}]</span>`;
-            let nextIdx = state.currentIndex + 1;
-            if (nextIdx >= state.filteredPlaylist.length) nextIdx = 0;
-            const next = state.filteredPlaylist[nextIdx];
-            dom.nextTrackInfo.innerHTML = next ? `Próxima: ${next.title} - ${next.artist}` : 'Próxima: --';
-            dom.currentTimeEl.textContent = '0:00';
-            dom.totalTimeEl.textContent = '0:00';
-            dom.progressFill.style.width = '0%';
-        },
-
-        pause() {
-            dom.musicPlayer.pause();
+        async playAd(adSrc, adText) {
+            state.isAdPlaying = true;
             state.isPlaying = false;
-            dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            if (state.progressInterval) clearInterval(state.progressInterval);
-            state.progressInterval = null;
-        },
-
-        togglePlayPause() {
-            state.isPlaying ? this.pause() : this.play();
-        },
-
-        async next() {
-            if (state.isLoadingTrack) return;
-            if (state.progressInterval) clearInterval(state.progressInterval);
-
-            let nextIndex = state.currentIndex + 1;
-            if (nextIndex >= state.filteredPlaylist.length) nextIndex = 0;
-            state.currentIndex = nextIndex;
+            dom.anuncioBadge.style.display = 'block';
+            dom.trackMarquee.innerHTML = `<span class="marquee-text">📢 ${adText}</span>`;
+            dom.nextTrackInfo.innerHTML = 'Próxima: --';
+            this.stopProgressTimer();
             
-            await this.play();
+            return new Promise((resolve) => {
+                const audio = new Audio(adSrc);
+                audio.volume = CONFIG.VOLUME_PLAYER;
+                
+                audio.play().catch(e => {
+                    console.warn("Erro anúncio:", e);
+                    resolve();
+                });
+                
+                audio.onended = () => {
+                    resolve();
+                };
+                
+                audio.onerror = () => {
+                    console.warn("Erro no arquivo de anúncio");
+                    resolve();
+                };
+                
+                setTimeout(() => {
+                    if (audio) audio.pause();
+                    resolve();
+                }, 10000);
+            });
         },
 
-        async prev() {
-            if (state.isLoadingTrack) return;
-            if (state.progressInterval) clearInterval(state.progressInterval);
-            let prevIndex = state.currentIndex - 1;
-            if (prevIndex < 0) prevIndex = state.filteredPlaylist.length - 1;
-            state.currentIndex = prevIndex;
-            await this.play();
+        async playNextMusic() {
+            if (!state.filteredPlaylist.length) {
+                state.filteredPlaylist = getRandomSongs(2);
+                state.currentIndex = 0;
+            }
+            
+            const music = state.filteredPlaylist[state.currentIndex];
+            if (music) {
+                this.updateUI(music);
+                const success = await this.playMusic(music);
+                if (!success) {
+                    state.currentIndex++;
+                    this.playNextMusic();
+                }
+            }
+        },
+
+        async startCycle() {
+            state.musicCount = 0;
+            state.filteredPlaylist = getRandomSongs(2);
+            state.currentIndex = 0;
+            await this.playNextMusic();
+        },
+
+        async onMusicEnded() {
+            if (state.isAdPlaying) return;
+            
+            state.musicCount++;
+            console.log(`Música ${state.musicCount}/2 tocada`);
+            
+            if (state.musicCount >= 2) {
+                // Toca anúncio sa.m4a
+                mostrarNotificacao("📢 Intervalo comercial!", 2000);
+                await this.playAd(CONFIG.ANUNCIO_SEQUENCIA, "ANÚNCIO - Ótica São Miguel");
+                dom.anuncioBadge.style.display = 'none';
+                
+                // Reinicia ciclo com novas músicas
+                state.musicCount = 0;
+                state.filteredPlaylist = getRandomSongs(2);
+                state.currentIndex = 0;
+                await this.playNextMusic();
+            } else {
+                state.currentIndex++;
+                await this.playNextMusic();
+            }
         },
 
         startProgressTimer() {
@@ -1046,8 +1092,46 @@
             }, 200);
 
             dom.musicPlayer.onended = () => {
-                this.next();
+                this.onMusicEnded();
             };
+        },
+
+        stopProgressTimer() {
+            if (state.progressInterval) {
+                clearInterval(state.progressInterval);
+                state.progressInterval = null;
+            }
+        },
+
+        pause() {
+            dom.musicPlayer.pause();
+            state.isPlaying = false;
+            dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            this.stopProgressTimer();
+        },
+
+        togglePlayPause() {
+            if (state.isAdPlaying) {
+                mostrarNotificacao("Anúncio em execução...", 1500);
+                return;
+            }
+            state.isPlaying ? this.pause() : this.playNextMusic();
+        },
+
+        async next() {
+            if (state.isAdPlaying) return;
+            this.stopProgressTimer();
+            if (state.musicCount < 2) {
+                state.musicCount++;
+            }
+            this.onMusicEnded();
+        },
+
+        async prev() {
+            if (state.isAdPlaying) return;
+            mostrarNotificacao("⏪ Voltando música...", 1000);
+            this.stopProgressTimer();
+            this.onMusicEnded();
         }
     };
 
@@ -1065,31 +1149,40 @@
     // ==================== PLAYLIST MANAGER ====================
     const PlaylistManager = {
         filterByGenre(genero) {
+            if (state.isAdPlaying) {
+                mostrarNotificacao("Aguarde o anúncio terminar...", 1500);
+                return;
+            }
+            
             state.generoAtual = genero;
-            let nova = [];
+            let novasMusicas = [];
             
             if (genero === 'TODOS') {
-                nova = shuffleArray([...PLAYLIST]);
+                novasMusicas = getRandomSongs(2);
                 state.generoAtual = "MIX";
                 updateGenreBadge("MIX");
             } else {
-                nova = PLAYLIST.filter(m => m.genero === genero);
-                if (!nova.length) {
-                    nova = shuffleArray([...PLAYLIST]);
+                const musicasDoGenero = PLAYLIST.filter(m => m.genero === genero);
+                if (musicasDoGenero.length === 0) {
+                    novasMusicas = getRandomSongs(2);
                     mostrarNotificacao(`⚠️ Nenhuma música para ${genero}. Carregando todas.`, 2000);
                     state.generoAtual = "MIX";
                     updateGenreBadge("MIX");
                 } else {
+                    const shuffled = shuffleArray([...musicasDoGenero]);
+                    novasMusicas = shuffled.slice(0, 2);
                     updateGenreBadge(genero);
                 }
             }
             
-            state.filteredPlaylist = shuffleArray(nova);
-            state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
-            if (state.filteredPlaylist[state.currentIndex]) {
-                PlayerEngine.updateUI(state.filteredPlaylist[state.currentIndex]);
+            state.filteredPlaylist = novasMusicas;
+            state.currentIndex = 0;
+            state.musicCount = 0;
+            
+            if (state.isPlaying) {
+                PlayerEngine.stopProgressTimer();
+                PlayerEngine.playNextMusic();
             }
-            if (state.isPlaying) PlayerEngine.play();
         }
     };
 
@@ -1133,12 +1226,14 @@
             el.addEventListener('click', () => {
                 const id = parseInt(el.dataset.id);
                 const music = PLAYLIST.find(m => m.id === id);
-                if (music) {
-                    state.filteredPlaylist.unshift(music);
+                if (music && !state.isAdPlaying) {
+                    state.filteredPlaylist = [music, ...getRandomSongs(1)];
                     state.currentIndex = 0;
+                    state.musicCount = 0;
                     PlayerEngine.updateUI(music);
                     updateGenreBadge(music.genero);
-                    PlayerEngine.play();
+                    PlayerEngine.stopProgressTimer();
+                    PlayerEngine.playNextMusic();
                     domSearch.container.style.display = 'none';
                     mostrarNotificacao(`🔍 Tocando: ${music.title}`, 2500);
                 }
@@ -1157,7 +1252,12 @@
         if (radioStarted) return;
         radioStarted = true;
 
-        try { await document.documentElement.requestFullscreen(); } catch(e) {}
+        // Entrar em tela cheia
+        try { 
+            await document.documentElement.requestFullscreen();
+        } catch(e) { 
+            console.log("Fullscreen não suportado");
+        }
 
         dom.splash.classList.add('hidden');
         setTimeout(() => dom.splash.style.display = 'none', 800);
@@ -1169,20 +1269,23 @@
             await state.audioContext.resume();
         }
 
-        state.generoAtual = 'MPB';
-        let musicasMPB = PLAYLIST.filter(m => m.genero === 'MPB');
-        if (!musicasMPB.length) musicasMPB = shuffleArray([...PLAYLIST]);
+        // Iniciar com anúncio as.m4a
+        mostrarNotificacao("🎙️ Iniciando com anúncio...", 3000);
+        await PlayerEngine.playAd(CONFIG.ANUNCIO_INICIAL, "ANÚNCIO - Ótica São Miguel");
+        dom.anuncioBadge.style.display = 'none';
+
+        // Configurar modo POP e iniciar ciclo
+        state.generoAtual = 'POP';
+        const musicasPOP = PLAYLIST.filter(m => m.genero === 'POP');
+        const shuffledPOP = shuffleArray([...musicasPOP]);
+        state.filteredPlaylist = shuffledPOP.slice(0, 2);
+        state.currentIndex = 0;
+        state.musicCount = 0;
         
-        state.filteredPlaylist = shuffleArray(musicasMPB);
-        state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
+        updateGenreBadge('POP');
         
-        if (state.filteredPlaylist[state.currentIndex]) {
-            PlayerEngine.updateUI(state.filteredPlaylist[state.currentIndex]);
-        }
-        updateGenreBadge('MPB');
-        
-        mostrarNotificacao("✅ Rádio Loja iniciada!", 3000);
-        await PlayerEngine.play();
+        mostrarNotificacao("✅ Rádio Loja iniciada! Modo POP", 3000);
+        await PlayerEngine.playNextMusic();
         
         showControls();
     }
@@ -1196,16 +1299,23 @@
         dom.nextBtn.addEventListener('click', () => PlayerEngine.next());
         
         dom.shuffleBtn.addEventListener('click', () => {
-            state.filteredPlaylist = shuffleArray(state.filteredPlaylist);
+            if (state.isAdPlaying) {
+                mostrarNotificacao("Aguarde o anúncio terminar...", 1500);
+                return;
+            }
+            state.filteredPlaylist = getRandomSongs(2);
             state.currentIndex = 0;
+            state.musicCount = 0;
             PlayerEngine.updateUI(state.filteredPlaylist[0]);
-            mostrarNotificacao('🔀 Aleatório ativado', 1500);
+            PlayerEngine.stopProgressTimer();
+            PlayerEngine.playNextMusic();
+            mostrarNotificacao('🔀 Novas músicas carregadas', 1500);
         });
 
         document.getElementById('progressBar')?.addEventListener('click', e => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            if (dom.musicPlayer.duration) {
+            if (!state.isAdPlaying && dom.musicPlayer.duration) {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
                 dom.musicPlayer.currentTime = percent * dom.musicPlayer.duration;
             }
         });
@@ -1361,17 +1471,6 @@
         carregarStats();
         dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
         
-        state.generoAtual = 'MPB';
-        let musicasMPB = PLAYLIST.filter(m => m.genero === 'MPB');
-        if (!musicasMPB.length) musicasMPB = shuffleArray([...PLAYLIST]);
-        state.filteredPlaylist = shuffleArray(musicasMPB);
-        state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
-        
-        if (state.filteredPlaylist[state.currentIndex]) {
-            PlayerEngine.updateUI(state.filteredPlaylist[state.currentIndex]);
-        }
-        updateGenreBadge('MPB');
-        
         setupEventListeners();
         
         setInterval(() => {
@@ -1390,6 +1489,7 @@
 
     console.log('🚀 Rádio Loja pronta! Toque na tela para controles.');
     console.log('🔵 Bluetooth disponível! Clique no ícone azul para conectar.');
+    console.log('📢 Lógica: as.m4a → 2 músicas aleatórias → sa.m4a → 2 músicas aleatórias...');
 </script>
 </body>
 </html>
