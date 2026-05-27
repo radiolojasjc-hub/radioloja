@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ótica Heloísa • Música Ambiente</title>
+    <title>Ótica São Miguel • Música Ambiente</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -80,7 +81,7 @@
         }
 
         .logo-icon {
-            background: linear-gradient(135deg, #25D366, #128C7E);
+            background: linear-gradient(135deg, #00f3ff, #ff2d7f);
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.7rem;
@@ -89,11 +90,11 @@
         }
 
         .cycle-status-badge {
-            background: rgba(37, 211, 102, 0.2);
+            background: rgba(0, 243, 255, 0.2);
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.7rem;
-            border-left: 2px solid #25D366;
+            border-left: 2px solid #00f3ff;
             color: rgba(255, 255, 255, 0.9);
         }
 
@@ -139,7 +140,7 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #25D366, #128C7E);
+            background: linear-gradient(90deg, #00f3ff, #ff2d7f);
             border-radius: 4px;
             width: 0%;
             transition: width 0.1s linear;
@@ -170,14 +171,14 @@
 
         .ctrl-btn:active {
             transform: scale(0.95);
-            background: #25D366;
+            background: #00f3ff;
             color: #000;
         }
 
         .play-btn {
             width: 65px;
             height: 65px;
-            background: #25D366;
+            background: linear-gradient(135deg, #00f3ff, #ff2d7f);
             color: #000;
             font-size: 1.5rem;
         }
@@ -212,8 +213,9 @@
         }
 
         .btn-wpp { background: #25D366; }
-        .btn-info { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .btn-info { background: linear-gradient(135deg, #00f3ff, #ff2d7f); }
         .btn-bluetooth { background: #0082fc; }
+        .btn-fullscreen { background: #6c5ce7; }
 
         .menu-btn {
             position: fixed;
@@ -269,7 +271,7 @@
         }
 
         .menu-popup button:active {
-            background: #25D366;
+            background: #00f3ff;
             color: #000;
         }
 
@@ -321,8 +323,8 @@
             bottom: 50%;
             left: 50%;
             transform: translateX(-50%) translateY(50%);
-            background: linear-gradient(135deg, #25D366, #128C7E);
-            color: white;
+            background: linear-gradient(135deg, #00f3ff, #ff2d7f);
+            color: #000;
             border: none;
             padding: 18px 36px;
             border-radius: 60px;
@@ -331,13 +333,14 @@
             cursor: pointer;
             z-index: 1000;
             animation: pulse 1.5s infinite;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
             white-space: nowrap;
+            font-family: 'Orbitron', monospace;
         }
 
         @keyframes pulse {
-            0%, 100% { transform: translateX(-50%) translateY(50%) scale(1); }
-            50% { transform: translateX(-50%) translateY(50%) scale(1.05); }
+            0%, 100% { transform: translateX(-50%) translateY(50%) scale(1); box-shadow: 0 0 20px rgba(0, 243, 255, 0.5); }
+            50% { transform: translateX(-50%) translateY(50%) scale(1.05); box-shadow: 0 0 40px rgba(0, 243, 255, 0.8); }
         }
 
         .modal {
@@ -345,7 +348,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
+            background: linear-gradient(135deg, #0a0a0f, #001a2a);
             border-radius: 25px;
             padding: 20px;
             z-index: 1000;
@@ -353,7 +356,9 @@
             max-width: 85vw;
             width: 320px;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+            border: 1px solid #00f3ff;
+            color: white;
         }
 
         .modal.open {
@@ -361,20 +366,50 @@
         }
 
         .modal h2 {
-            color: #667eea;
+            color: #00f3ff;
             margin-bottom: 12px;
             font-size: 1.3rem;
         }
 
         .modal button {
-            background: #25D366;
+            background: #00f3ff;
             border: none;
             padding: 10px 20px;
             border-radius: 30px;
-            color: white;
+            color: #000;
             font-weight: bold;
             margin-top: 15px;
             cursor: pointer;
+        }
+
+        .qrcode-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        #qrcode {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .share-link {
+            background: #111;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            word-break: break-all;
+            font-size: 0.7rem;
+            border: 1px solid #00f3ff;
+        }
+        
+        .copy-link-btn {
+            background: #00f3ff;
+            border: none;
+            padding: 8px;
+            border-radius: 40px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
         }
 
         @media (max-width: 600px) {
@@ -395,12 +430,12 @@
 
     <div class="player-container hide" id="playerContainer">
         <div class="card-header">
-            <div class="logo-icon"><i class="fas fa-glasses"></i> Ótica Heloísa</div>
+            <div class="logo-icon"><i class="fas fa-glasses"></i> Ótica São Miguel</div>
             <div class="cycle-status-badge" id="cycleStatus"><i class="fas fa-circle"></i> Aguardando</div>
         </div>
 
         <div class="music-info">
-            <div class="track-name" id="trackName">🎵 Clique no botão verde</div>
+            <div class="track-name" id="trackName">🎵 Clique no botão ATIVAR</div>
             <div class="track-artist" id="trackArtist">2 músicas • Música ambiente</div>
         </div>
 
@@ -423,6 +458,7 @@
 
     <div class="float-buttons">
         <button class="float-btn btn-bluetooth" id="bluetoothBtn"><i class="fab fa-bluetooth-b"></i></button>
+        <button class="float-btn btn-fullscreen" id="fullscreenFloatBtn"><i class="fas fa-expand"></i></button>
         <button class="float-btn btn-wpp" id="wppBtn"><i class="fab fa-whatsapp"></i></button>
         <button class="float-btn btn-info" id="infoBtn"><i class="fas fa-info"></i></button>
     </div>
@@ -431,8 +467,10 @@
         <i class="fas fa-ellipsis-v"></i>
     </div>
     <div class="menu-popup" id="menuPopup">
-        <button id="manualBtn"><i class="fas fa-book-open"></i> Como funciona</button>
         <button id="shareBtn"><i class="fas fa-share-alt"></i> Compartilhar</button>
+        <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela cheia</button>
+        <button id="manualBtn"><i class="fas fa-book-open"></i> Como funciona</button>
+        <button id="siteBtn"><i class="fas fa-globe"></i> Visite nosso Site</button>
         <button id="menuWppBtn"><i class="fab fa-whatsapp"></i> Falar com Ótica</button>
     </div>
 
@@ -450,11 +488,12 @@
     </div>
 
     <div class="modal" id="infoModal">
-        <h2><i class="fas fa-glasses"></i> Ótica Heloísa</h2>
+        <h2><i class="fas fa-glasses"></i> Ótica São Miguel</h2>
         <p>👓 Armações de qualidade</p>
         <p>🔬 Lentes de precisão</p>
         <p>⭐ Atendimento especializado</p>
         <p style="margin-top: 10px;"><i class="fab fa-whatsapp"></i> (12) 98846-1978</p>
+        <p><i class="fas fa-globe"></i> oticassaomiguel.com.br</p>
         <button onclick="closeModal('infoModal')">FECHAR</button>
     </div>
 
@@ -462,13 +501,23 @@
         <h2>📘 Como Funciona</h2>
         <div style="text-align: left;">
             <p><strong>🔊 LÓGICA EXATA:</strong></p>
-            <p style="color: #25D366; font-weight: bold;">✅ ANÚNCIO → MÚSICA 1 → MÚSICA 2 → ANÚNCIO → MÚSICA 3 → MÚSICA 4...</p>
+            <p style="color: #00f3ff; font-weight: bold;">✅ ANÚNCIO → MÚSICA 1 → MÚSICA 2 → ANÚNCIO → MÚSICA 3 → MÚSICA 4...</p>
             <p style="margin-top: 10px;"><strong>🎮 GESTOS:</strong><br>
             Toque na tela = mostra/esconde controles<br>
             Deslizar ← → = trocar música<br>
             Toque duplo = play/pause</p>
         </div>
         <button onclick="closeModal('manualModal')">ENTENDI</button>
+    </div>
+
+    <div class="modal" id="shareModal">
+        <h2><i class="fas fa-share-alt"></i> Compartilhar</h2>
+        <div class="share-link" id="shareLink">Carregando...</div>
+        <button class="copy-link-btn" id="copyLinkBtn"><i class="fas fa-copy"></i> Copiar Link</button>
+        <div class="qrcode-container">
+            <div id="qrcode"></div>
+        </div>
+        <button onclick="closeModal('shareModal')">FECHAR</button>
     </div>
 </div>
 
@@ -514,7 +563,7 @@
 
     // ==================== ANÚNCIOS ====================
     const ADS = [
-        { text: "📢 Ótica Heloísa! Qualidade em armações e lentes", src: "as.m4a" },
+        { text: "📢 Ótica São Miguel! Qualidade em armações e lentes", src: "as.m4a" },
         { text: "📢 Promoção especial! Visite nossa loja", src: "sa.m4a" }
     ];
 
@@ -528,7 +577,7 @@
     let currentAdIndex = 0;
     let musicCountInCycle = 0;
     let currentMusicList = [];
-    let musicHistory = []; // Histórico para evitar repetir músicas
+    let musicHistory = [];
     
     const audio = document.getElementById('audioPlayer');
     const playerContainer = document.getElementById('playerContainer');
@@ -563,8 +612,8 @@
             statusSpan.style.borderLeftColor = "#ff6b6b";
         } else {
             statusSpan.innerHTML = `<i class="fas fa-music"></i> MÚSICA ${musicCountInCycle + 1}/2`;
-            statusSpan.style.background = "rgba(37, 211, 102, 0.2)";
-            statusSpan.style.borderLeftColor = "#25D366";
+            statusSpan.style.background = "rgba(0, 243, 255, 0.2)";
+            statusSpan.style.borderLeftColor = "#00f3ff";
         }
     }
     
@@ -599,15 +648,12 @@
         }
     }
     
-    // FUNÇÃO CORRIGIDA: pega 2 músicas diferentes sem repetir as últimas 10
     function getRandomTwoSongs() {
-        // Filtra músicas que não estão no histórico recente
         const availableSongs = ALL_SONGS.filter(song => !musicHistory.includes(song.title));
         
         let songsToUse = [];
         
         if (availableSongs.length >= 2) {
-            // Se tem pelo menos 2 músicas disponíveis, usa elas
             const shuffled = [...availableSongs];
             for (let i = shuffled.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -615,7 +661,6 @@
             }
             songsToUse = [shuffled[0], shuffled[1]];
         } else {
-            // Se não tem músicas suficientes, limpa o histórico e usa todas
             musicHistory = [];
             const shuffled = [...ALL_SONGS];
             for (let i = shuffled.length - 1; i > 0; i--) {
@@ -625,18 +670,14 @@
             songsToUse = [shuffled[0], shuffled[1]];
         }
         
-        // Adiciona ao histórico
         musicHistory.push(songsToUse[0].title);
         musicHistory.push(songsToUse[1].title);
         
-        // Mantém histórico com no máximo 10 músicas
         if (musicHistory.length > 10) {
             musicHistory = musicHistory.slice(-10);
         }
         
         console.log("🎵 Músicas selecionadas:", songsToUse[0].title, "e", songsToUse[1].title);
-        console.log("📜 Histórico:", musicHistory);
-        
         return songsToUse;
     }
     
@@ -644,7 +685,6 @@
         if (!isActive || isAdPlaying) return;
         
         if (!currentMusicList.length || musicCountInCycle >= 2) {
-            console.log("🎵 Carregando novo par de músicas...");
             currentMusicList = getRandomTwoSongs();
             musicCountInCycle = 0;
         }
@@ -690,7 +730,7 @@
         console.log(`📢 TOCANDO ANÚNCIO ${currentAdIndex}: ${ad.text}`);
         updateStatus();
         
-        document.getElementById('trackName').textContent = "📢 ANÚNCIO - Ótica Heloísa";
+        document.getElementById('trackName').textContent = "📢 ANÚNCIO - Ótica São Miguel";
         document.getElementById('trackArtist').textContent = ad.text;
         
         audio.src = ad.src;
@@ -750,7 +790,7 @@
     
     function togglePlayPause() {
         if (!isActive) {
-            showNotification("Clique no botão verde primeiro!", 2000);
+            showNotification("Clique no botão ATIVAR SISTEMA primeiro!", 2000);
             return;
         }
         
@@ -800,6 +840,32 @@
         nextTrack();
     }
     
+    function goFullscreen() {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        }
+        showNotification("🖥️ Tela cheia ativada", 1500);
+    }
+    
+    function openShareModal() {
+        const currentUrl = window.location.href;
+        document.getElementById('shareLink').textContent = currentUrl;
+        const qrcodeDiv = document.getElementById('qrcode');
+        qrcodeDiv.innerHTML = '';
+        new QRCode(qrcodeDiv, {
+            text: currentUrl,
+            width: 200,
+            height: 200,
+            colorDark: "#00f3ff",
+            colorLight: "#0a0a0f",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        document.getElementById('shareModal').classList.add('open');
+    }
+    
     async function connectBluetooth() {
         showNotification("🔵 Procurando dispositivos Bluetooth...", 2000);
         
@@ -841,16 +907,15 @@
             isActive = true;
             document.getElementById('activateBtn').style.display = 'none';
             
-            try {
-                await document.documentElement.requestFullscreen();
-            } catch(e) {}
+            // Tela cheia automaticamente
+            await document.documentElement.requestFullscreen();
             
-            showNotification("🎬 INICIANDO: ANÚNCIO → 2 MÚSICAS → ANÚNCIO...", 4000);
+            showNotification("🎬 SISTEMA ATIVADO! ANÚNCIO → 2 MÚSICAS → ANÚNCIO...", 4000);
             
             musicCountInCycle = 0;
             currentAdIndex = 0;
             currentMusicList = [];
-            musicHistory = []; // Limpa histórico ao iniciar
+            musicHistory = [];
             
             const video = document.getElementById('bgVideo');
             video.play().catch(e => console.log("Vídeo:", e));
@@ -861,7 +926,7 @@
             
         } catch (err) {
             console.error("Erro:", err);
-            showNotification("🔊 Clique NOVAMENTE no botão verde!", 3000);
+            showNotification("🔊 Clique NOVAMENTE no botão!", 3000);
             isActive = false;
             document.getElementById('activateBtn').style.display = 'block';
         } finally {
@@ -923,10 +988,12 @@
     function openWhatsApp() {
         window.open('https://wa.me/5512988461978', '_blank');
     }
+    
     document.getElementById('wppBtn').addEventListener('click', openWhatsApp);
     document.getElementById('menuWppBtn').addEventListener('click', openWhatsApp);
-    
     document.getElementById('bluetoothBtn').addEventListener('click', connectBluetooth);
+    document.getElementById('fullscreenFloatBtn').addEventListener('click', goFullscreen);
+    document.getElementById('fullscreenMenuBtn').addEventListener('click', goFullscreen);
     
     document.getElementById('infoBtn').addEventListener('click', () => {
         document.getElementById('infoModal').classList.add('open');
@@ -935,6 +1002,22 @@
     document.getElementById('manualBtn').addEventListener('click', () => {
         document.getElementById('manualModal').classList.add('open');
         document.getElementById('menuPopup').classList.remove('open');
+    });
+    
+    document.getElementById('siteBtn').addEventListener('click', () => {
+        window.open('https://oticassaomiguel.com.br/', '_blank');
+        document.getElementById('menuPopup').classList.remove('open');
+    });
+    
+    document.getElementById('shareBtn').addEventListener('click', () => {
+        openShareModal();
+        document.getElementById('menuPopup').classList.remove('open');
+    });
+    
+    document.getElementById('copyLinkBtn').addEventListener('click', () => {
+        const link = document.getElementById('shareLink').textContent;
+        navigator.clipboard.writeText(link);
+        showNotification("🔗 Link copiado!", 1500);
     });
     
     const menuPopup = document.getElementById('menuPopup');
@@ -949,21 +1032,10 @@
         }
     });
     
-    document.getElementById('shareBtn').addEventListener('click', () => {
-        const url = window.location.href;
-        if (navigator.share) {
-            navigator.share({ title: 'Ótica Heloísa', url: url });
-        } else {
-            navigator.clipboard.writeText(url);
-            showNotification("🔗 Link copiado!", 2000);
-        }
-        menuPopup.classList.remove('open');
-    });
-    
     const video = document.getElementById('bgVideo');
     video.play().catch(e => console.log("Aguardando interação"));
     
-    showNotification("🎬 Clique no botão verde para começar! Lógica: ANÚNCIO → 2 MÚSICAS → ANÚNCIO...", 5000);
+    showNotification("🎬 Clique no botão ATIVAR SISTEMA para começar!", 5000);
     console.log("✅ SISTEMA PRONTO - 25 MÚSICAS CARREGADAS!");
     console.log("🎵 As músicas NÃO vão repetir por pelo menos 10 músicas!");
 </script>
