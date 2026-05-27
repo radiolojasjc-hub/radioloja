@@ -481,7 +481,7 @@
 
     // ==================== TODAS AS 25 MÚSICAS ====================
     const ALL_SONGS = [
-        // POP
+        // POP (9)
         { title: "Billie Jean", artist: "Michael Jackson", src: "Billie_Jean_muzzik.m4a" },
         { title: "Torn", artist: "Natalie Imbruglia", src: "Torn_muzzik.m4a" },
         { title: "Sunrise", artist: "Simply Red", src: "Sunrise_muzzik.m4a" },
@@ -491,20 +491,20 @@
         { title: "Down Under", artist: "Arthur Rodrigues", src: "Down_Under_muzzik.m4a" },
         { title: "Love Come Down", artist: "Evelyn King", src: "Love_Come_Down_muzzik.m4a" },
         { title: "Sultans of Swing", artist: "Dire Straits", src: "Sultans_of_Swing_muzzik.m4a" },
-        // PAGODE
+        // PAGODE (5)
         { title: "Destilado", artist: "Ludmilla", src: "LUDMILLA_Destilado_muzzik.m4a" },
         { title: "Telepatia", artist: "Ferrugem", src: "Ferrugem_Telepatia_part_Thiaguinho_muzzik.m4a" },
         { title: "Champanhe", artist: "Grupo Menos Mais", src: "Grupo_Menos_Mais_Champanhe_muzzik.m4a" },
         { title: "Lance Livre", artist: "Kamisa 10", src: "Kamisa_10_-_Lance_Livre_NA_VIBE_DO_K10.mp3" },
         { title: "KIiko no Pagode", artist: "KIiko", src: "KIiko_no_Pagode.m4a" },
-        // SERTANEJO
+        // SERTANEJO (6)
         { title: "Seu Brilho Sumiu", artist: "Israel & Rodolffo", src: "Israel_Rodolffo_MariFernandez_-_Seu_Brilho_Sumiu.mp3" },
         { title: "Desbloqueado", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_-_Desbloqueado.mp3" },
         { title: "Vontade de Prestar", artist: "Nattan", src: "Nattan_Vontade_de_Prestar_muzzik.m4a" },
         { title: "Até Você Voltar", artist: "Marília Mendonça", src: "Mar_lia_Mendon_a_At_Voc_Voltar_muzzik.m4a" },
         { title: "Retrovisor", artist: "Gusttavo Lima", src: "Gusttavo_Lima_Retrovisor_DVD_muzzik.m4a" },
         { title: "Que Era Eu", artist: "Lauana Prado", src: "LAUANA_PRADO_QUE_ERA_EU_UM_DIA_DE_DOMINGO.m4a" },
-        // MPB
+        // MPB (5)
         { title: "A Tal Canção Pra Lua", artist: "Vitor Kley", src: "Vitor_Kley_Samuel_Rosa_A_Tal_Can_o_Pra_Lua_muzzik.m4a" },
         { title: "A Namorada", artist: "Carlinhos Brown", src: "A_Namorada_A_Namorada_Carlinhos_Brown_muzzik.m4a" },
         { title: "Sorri Sou Rei", artist: "Natiruts", src: "Natiruts_Sorri_Sou_Rei_muzzik.m4a" },
@@ -528,6 +528,7 @@
     let currentAdIndex = 0;
     let musicCountInCycle = 0;
     let currentMusicList = [];
+    let musicHistory = []; // Histórico para evitar repetir músicas
     
     const audio = document.getElementById('audioPlayer');
     const playerContainer = document.getElementById('playerContainer');
@@ -598,13 +599,45 @@
         }
     }
     
+    // FUNÇÃO CORRIGIDA: pega 2 músicas diferentes sem repetir as últimas 10
     function getRandomTwoSongs() {
-        const shuffled = [...ALL_SONGS];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        // Filtra músicas que não estão no histórico recente
+        const availableSongs = ALL_SONGS.filter(song => !musicHistory.includes(song.title));
+        
+        let songsToUse = [];
+        
+        if (availableSongs.length >= 2) {
+            // Se tem pelo menos 2 músicas disponíveis, usa elas
+            const shuffled = [...availableSongs];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            songsToUse = [shuffled[0], shuffled[1]];
+        } else {
+            // Se não tem músicas suficientes, limpa o histórico e usa todas
+            musicHistory = [];
+            const shuffled = [...ALL_SONGS];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            songsToUse = [shuffled[0], shuffled[1]];
         }
-        return [shuffled[0], shuffled[1]];
+        
+        // Adiciona ao histórico
+        musicHistory.push(songsToUse[0].title);
+        musicHistory.push(songsToUse[1].title);
+        
+        // Mantém histórico com no máximo 10 músicas
+        if (musicHistory.length > 10) {
+            musicHistory = musicHistory.slice(-10);
+        }
+        
+        console.log("🎵 Músicas selecionadas:", songsToUse[0].title, "e", songsToUse[1].title);
+        console.log("📜 Histórico:", musicHistory);
+        
+        return songsToUse;
     }
     
     function playNextMusicInCycle() {
@@ -817,6 +850,7 @@
             musicCountInCycle = 0;
             currentAdIndex = 0;
             currentMusicList = [];
+            musicHistory = []; // Limpa histórico ao iniciar
             
             const video = document.getElementById('bgVideo');
             video.play().catch(e => console.log("Vídeo:", e));
@@ -931,6 +965,7 @@
     
     showNotification("🎬 Clique no botão verde para começar! Lógica: ANÚNCIO → 2 MÚSICAS → ANÚNCIO...", 5000);
     console.log("✅ SISTEMA PRONTO - 25 MÚSICAS CARREGADAS!");
+    console.log("🎵 As músicas NÃO vão repetir por pelo menos 10 músicas!");
 </script>
 </body>
 </html>
