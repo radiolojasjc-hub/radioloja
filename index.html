@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
         :root { --bg-primary: #0a0a0f; --accent: #00f3ff; --secondary: #ff2d7f; }
         body { 
             min-height: 100vh; 
@@ -120,7 +120,9 @@
             z-index: 25; 
             text-align: center; 
             border-top: 1px solid rgba(0, 243, 255, 0.3); 
+            transition: transform 0.3s ease;
         }
+        .info-area.hidden { transform: translateY(100%); }
         
         .track-info { margin-bottom: 4px; }
         .marquee-wrap { width: 100%; overflow: hidden; white-space: nowrap; }
@@ -147,7 +149,9 @@
             z-index: 20; 
             border-radius: 24px 24px 0 0; 
             box-shadow: 0 -5px 20px rgba(0,0,0,0.5); 
+            transition: transform 0.3s ease;
         }
+        .bottom-controls.hidden { transform: translateY(100%); }
         
         .progress-area { margin-bottom: 10px; }
         .progress-time { display: flex; justify-content: space-between; font-size: 0.65rem; color: #aaa; }
@@ -209,7 +213,9 @@
             display: flex; 
             gap: 12px; 
             z-index: 27; 
+            transition: opacity 0.3s ease;
         }
+        .floating-buttons.hidden { opacity: 0; pointer-events: none; }
         
         .floating-btn { 
             width: 48px; 
@@ -246,9 +252,11 @@
             z-index: 27; 
             border: none; 
             box-shadow: 0 0 12px rgba(0, 243, 255, 0.7); 
+            transition: opacity 0.3s ease;
         }
         .genre-button:active { transform: scale(0.9); }
         .genre-button i { font-size: 1.4rem; color: #000; }
+        .genre-button.hidden { opacity: 0; pointer-events: none; }
         
         .genre-badge { 
             position: absolute; 
@@ -559,7 +567,7 @@
         </video>
     </div>
     
-    <div class="info-area">
+    <div class="info-area" id="infoArea">
         <div class="track-info">
             <div class="marquee-wrap">
                 <span class="marquee-text" id="trackMarquee">🎵 Rádio Loja - Música para seu Negócio</span>
@@ -570,7 +578,7 @@
         </div>
     </div>
     
-    <div class="bottom-controls">
+    <div class="bottom-controls" id="bottomControls">
         <div class="progress-area">
             <div class="progress-time">
                 <span id="currentTime">0:00</span>
@@ -588,7 +596,7 @@
         </div>
     </div>
     
-    <div class="floating-buttons">
+    <div class="floating-buttons" id="floatingButtons">
         <button class="floating-btn bluetooth" id="bluetoothBtn"><i class="fas fa-bluetooth"></i></button>
         <button class="floating-btn share" id="shareFloatBtn"><i class="fas fa-share-alt"></i></button>
         <button class="floating-btn whatsapp" id="whatsappBtn"><i class="fab fa-whatsapp"></i></button>
@@ -599,7 +607,7 @@
     
     <div class="genre-badge" id="genreBadge"><i class="fas fa-heart"></i> MPB</div>
     <div class="anuncio-badge" id="anuncioBadge">📢 ANÚNCIO</div>
-    <div class="visualizer">
+    <div class="visualizer" id="visualizer">
         <div class="visualizer-bar"></div><div class="visualizer-bar"></div><div class="visualizer-bar"></div><div class="visualizer-bar"></div>
     </div>
     
@@ -681,14 +689,14 @@
 <audio id="musicPlayer" preload="auto" crossorigin></audio>
 
 <script>
-    // Configuração
+    // ==================== CONFIGURAÇÃO ====================
     const CONFIG = {
         WHATSAPP_NUMBER: '5512988461978',
         SITE_URL: 'https://oticassaomiguel.com.br/',
         VOLUME_PLAYER: 0.9
     };
 
-    // Playlist com URLs funcionais (SoundHelix - funcionam 100%)
+    // ==================== PLAYLIST ====================
     const PLAYLIST = [
         { id: 1, title: "Billie Jean", artist: "Michael Jackson", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "POP" },
         { id: 2, title: "Torn", artist: "Natalie Imbruglia", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero: "POP" },
@@ -705,7 +713,7 @@
         { id: 13, title: "Resposta", artist: "Skank", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "MPB" }
     ];
 
-    // Estado
+    // ==================== ESTADO GLOBAL ====================
     const state = {
         isPlaying: false,
         generoAtual: 'MPB',
@@ -713,14 +721,17 @@
         filteredPlaylist: [],
         contadorMusicas: 0,
         isLoadingTrack: false,
+        controlsVisible: true,
         stats: { totalPlayed: 0, totalSeconds: 0, genreCount: {}, currentStreak: 0 },
         audioContext: null,
         analyser: null,
         sourceNode: null,
         animationId: null,
-        progressInterval: null
+        progressInterval: null,
+        hideTimeout: null
     };
 
+    // ==================== FUNÇÕES AUXILIARES ====================
     function mostrarNotificacao(msg, dur = 2500) {
         const n = document.getElementById('notificationTop');
         n.textContent = msg;
@@ -745,7 +756,54 @@
         if (s) Object.assign(state.stats, JSON.parse(s)); 
     }
 
-    // DOM Elements
+    // ==================== BLUETOOTH ====================
+    async function conectarBluetooth() {
+        mostrarNotificacao("🔵 Procurando dispositivos Bluetooth...", 2000);
+        
+        if ('bluetooth' in navigator) {
+            try {
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: ['battery_service']
+                });
+                mostrarNotificacao(`✅ Conectado a: ${device.name || 'Dispositivo'}`, 3000);
+            } catch(error) {
+                mostrarNotificacao("❌ Conexão cancelada ou Bluetooth desligado", 2000);
+            }
+        } else {
+            mostrarNotificacao("⚠️ Bluetooth só funciona no Chrome ou Edge", 3000);
+        }
+    }
+
+    // ==================== CONTROLES DE VISIBILIDADE ====================
+    function hideControls() {
+        document.getElementById('bottomControls').classList.add('hidden');
+        document.getElementById('floatingButtons').classList.add('hidden');
+        document.getElementById('genreButton').classList.add('hidden');
+        state.controlsVisible = false;
+    }
+
+    function showControls() {
+        document.getElementById('bottomControls').classList.remove('hidden');
+        document.getElementById('floatingButtons').classList.remove('hidden');
+        document.getElementById('genreButton').classList.remove('hidden');
+        state.controlsVisible = true;
+        
+        if (state.hideTimeout) clearTimeout(state.hideTimeout);
+        state.hideTimeout = setTimeout(() => {
+            if (state.controlsVisible) hideControls();
+        }, 5000);
+    }
+
+    function toggleControls() {
+        if (state.controlsVisible) {
+            hideControls();
+        } else {
+            showControls();
+        }
+    }
+
+    // ==================== DOM ELEMENTS ====================
     const dom = {
         musicPlayer: document.getElementById('musicPlayer'),
         playBtn: document.getElementById('playPauseBtn'),
@@ -761,14 +819,41 @@
         appRoot: document.getElementById('appRoot'),
         loadingSpinner: document.getElementById('loadingSpinner'),
         genreBadge: document.getElementById('genreBadge'),
+        anuncioBadge: document.getElementById('anuncioBadge'),
         visualizerBars: document.querySelectorAll('.visualizer-bar'),
         genreButton: document.getElementById('genreButton'),
         menuButton: document.getElementById('menuButton'),
         menuPopup: document.getElementById('menuPopup'),
-        mainVideo: document.getElementById('mainVideo')
+        mainVideo: document.getElementById('mainVideo'),
+        feedbackModal: document.getElementById('feedbackModal'),
+        statsModal: document.getElementById('statsModal'),
+        genresModal: document.getElementById('genresModal'),
+        manualModal: document.getElementById('manualModal'),
+        shareModal: document.getElementById('shareModal')
     };
 
-    // Visualizer
+    // Toque na tela para mostrar/esconder controles
+    dom.appRoot.addEventListener('click', toggleControls);
+    dom.appRoot.addEventListener('touchstart', toggleControls);
+
+    // ==================== COMPARTILHAR COM QR CODE ====================
+    function openShareModal() {
+        const currentUrl = window.location.href;
+        document.getElementById('shareLink').textContent = currentUrl;
+        const qrcodeDiv = document.getElementById('qrcode');
+        qrcodeDiv.innerHTML = '';
+        new QRCode(qrcodeDiv, {
+            text: currentUrl,
+            width: 200,
+            height: 200,
+            colorDark: "#00f3ff",
+            colorLight: "#0a0a0f",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        dom.shareModal.classList.add('open');
+    }
+
+    // ==================== VISUALIZER ====================
     async function setupVisualizer() {
         if (state.audioContext) return;
         try {
@@ -802,7 +887,7 @@
         }
     }
 
-    // Player Engine
+    // ==================== PLAYER ENGINE ====================
     const PlayerEngine = {
         formatTime(sec) {
             if (isNaN(sec)) return '0:00';
@@ -945,12 +1030,18 @@
         }
     };
 
+    function updateMarquee() {
+        const msg = `🎵 RÁDIO LOJA | MODO: ${state.generoAtual} | ⚡ MÚSICA PARA SEU NEGÓCIO | 📻 24h | OTICASSAOMIGUEL.COM.BR`;
+        dom.trackMarquee.innerHTML = `<span class="marquee-text">${msg}</span>`;
+    }
+
     function updateGenreBadge(genero) {
         const g = genero === 'MIX' ? 'TODOS' : genero;
         dom.genreBadge.innerHTML = `<i class="fas fa-music"></i> ${g}`;
+        updateMarquee();
     }
 
-    // Playlist Manager
+    // ==================== PLAYLIST MANAGER ====================
     const PlaylistManager = {
         filterByGenre(genero) {
             state.generoAtual = genero;
@@ -981,38 +1072,7 @@
         }
     };
 
-    // Bluetooth
-    async function connectBluetooth() {
-        try {
-            mostrarNotificacao("🔵 Tentando conectar Bluetooth...", 2000);
-            const device = await navigator.bluetooth.requestDevice({
-                acceptAllDevices: true,
-                optionalServices: ['battery_service']
-            });
-            mostrarNotificacao(`✅ Conectado: ${device.name || 'Dispositivo'}`, 3000);
-        } catch (error) {
-            mostrarNotificacao("❌ Bluetooth não suportado ou cancelado", 2000);
-        }
-    }
-
-    // Compartilhar
-    function openShareModal() {
-        const currentUrl = window.location.href;
-        document.getElementById('shareLink').textContent = currentUrl;
-        const qrcodeDiv = document.getElementById('qrcode');
-        qrcodeDiv.innerHTML = '';
-        new QRCode(qrcodeDiv, {
-            text: currentUrl,
-            width: 200,
-            height: 200,
-            colorDark: "#00f3ff",
-            colorLight: "#0a0a0f",
-            correctLevel: QRCode.CorrectLevel.H
-        });
-        document.getElementById('shareModal').classList.add('open');
-    }
-
-    // Search
+    // ==================== SEARCH ====================
     const searchDiv = document.createElement('div');
     searchDiv.id = 'searchContainer';
     searchDiv.className = 'search-container';
@@ -1069,7 +1129,7 @@
         domSearch.input.addEventListener('input', e => performSearch(e.target.value));
     }
 
-    // Iniciar Rádio
+    // ==================== INICIALIZAÇÃO ====================
     let radioStarted = false;
 
     async function iniciarRadio() {
@@ -1102,11 +1162,14 @@
         
         mostrarNotificacao("✅ Rádio Loja iniciada!", 3000);
         await PlayerEngine.play();
+        
+        showControls();
     }
 
-    // Event Listeners
+    // ==================== EVENT LISTENERS ====================
     function setupEventListeners() {
         document.getElementById('splashStartBtn')?.addEventListener('click', iniciarRadio);
+
         dom.playBtn.addEventListener('click', () => PlayerEngine.togglePlayPause());
         dom.prevBtn.addEventListener('click', () => PlayerEngine.prev());
         dom.nextBtn.addEventListener('click', () => PlayerEngine.next());
@@ -1126,18 +1189,18 @@
             }
         });
 
-        dom.genreButton.addEventListener('click', () => document.getElementById('genresModal').classList.add('open'));
+        dom.genreButton.addEventListener('click', () => dom.genresModal.classList.add('open'));
         
         document.querySelectorAll('.genre-card').forEach(card => {
             card.addEventListener('click', () => {
                 const genero = card.getAttribute('data-genero');
                 PlaylistManager.filterByGenre(genero);
-                document.getElementById('genresModal').classList.remove('open');
+                dom.genresModal.classList.remove('open');
             });
         });
         
         document.getElementById('closeGenresBtn')?.addEventListener('click', () => {
-            document.getElementById('genresModal').classList.remove('open');
+            dom.genresModal.classList.remove('open');
         });
 
         dom.menuButton.addEventListener('click', (e) => {
@@ -1168,10 +1231,12 @@
         });
 
         document.getElementById('shareFloatBtn')?.addEventListener('click', openShareModal);
-        document.getElementById('bluetoothBtn')?.addEventListener('click', connectBluetooth);
+        document.getElementById('bluetoothBtn')?.addEventListener('click', conectarBluetooth);
+        
         document.getElementById('whatsappBtn')?.addEventListener('click', () => {
             window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=Olá!%20Gostaria%20de%20falar%20sobre%20a%20Rádio%20Loja`, '_blank');
         });
+        
         document.getElementById('siteBtn')?.addEventListener('click', () => {
             window.open(CONFIG.SITE_URL, '_blank');
         });
@@ -1187,17 +1252,17 @@
             }
             document.getElementById('statTopGenre').textContent = top;
             document.getElementById('statStreak').textContent = state.stats.currentStreak;
-            document.getElementById('statsModal').classList.add('open');
+            dom.statsModal.classList.add('open');
             dom.menuPopup.classList.remove('open');
         });
 
         document.getElementById('manualMenuBtn')?.addEventListener('click', () => {
-            document.getElementById('manualModal').classList.add('open');
+            dom.manualModal.classList.add('open');
             dom.menuPopup.classList.remove('open');
         });
 
         document.getElementById('feedbackMenuBtn')?.addEventListener('click', () => {
-            document.getElementById('feedbackModal').classList.toggle('open');
+            dom.feedbackModal.classList.toggle('open');
             dom.menuPopup.classList.remove('open');
         });
 
@@ -1211,9 +1276,10 @@
             dom.menuPopup.classList.remove('open');
         });
 
-        document.getElementById('closeStatsBtn')?.addEventListener('click', () => document.getElementById('statsModal').classList.remove('open'));
-        document.getElementById('closeManualBtn')?.addEventListener('click', () => document.getElementById('manualModal').classList.remove('open'));
-        document.getElementById('closeShareBtn')?.addEventListener('click', () => document.getElementById('shareModal').classList.remove('open'));
+        document.getElementById('closeStatsBtn')?.addEventListener('click', () => dom.statsModal.classList.remove('open'));
+        document.getElementById('closeManualBtn')?.addEventListener('click', () => dom.manualModal.classList.remove('open'));
+        document.getElementById('closeShareBtn')?.addEventListener('click', () => dom.shareModal.classList.remove('open'));
+        
         document.getElementById('copyLinkBtn')?.addEventListener('click', () => {
             const link = document.getElementById('shareLink').textContent;
             navigator.clipboard.writeText(link);
@@ -1239,7 +1305,7 @@
         });
 
         document.getElementById('cancelFeedback')?.addEventListener('click', () => {
-            document.getElementById('feedbackModal').classList.remove('open');
+            dom.feedbackModal.classList.remove('open');
             document.getElementById('feedbackText').value = '';
             currentRating = 0;
             stars.forEach(s => {
@@ -1258,7 +1324,7 @@
             if (text) msg += `💬 ${text}\n`;
             window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
             mostrarNotificacao('✅ Obrigado pelo feedback!', 2000);
-            document.getElementById('feedbackModal').classList.remove('open');
+            dom.feedbackModal.classList.remove('open');
             document.getElementById('feedbackText').value = '';
             currentRating = 0;
             stars.forEach(s => {
@@ -1268,8 +1334,9 @@
         });
     }
 
-    // Inicialização
+    // ==================== INIT ====================
     async function init() {
+        console.log(`✅ Rádio Loja inicializada | ${PLAYLIST.length} músicas`);
         carregarStats();
         dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
         
@@ -1295,7 +1362,13 @@
     }
 
     init();
-    console.log('🚀 Rádio Loja pronta! Clique em ATIVAR RÁDIO');
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(e => console.log("SW não registrado"));
+    }
+
+    console.log('🚀 Rádio Loja pronta! Toque na tela para controles.');
+    console.log('🔵 Bluetooth disponível! Clique no ícone Bluetooth para conectar.');
 </script>
 </body>
 </html>
