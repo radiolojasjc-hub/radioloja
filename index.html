@@ -518,8 +518,9 @@
 <!-- TELA PRINCIPAL -->
 <div class="app" id="appRoot">
     <div class="fullscreen-video-container">
+        <!-- VÍDEO PRINCIPAL: mid.mp4 rodando o tempo todo -->
         <video id="mainVideo" autoplay loop muted playsinline>
-            <source src="paixi1.mp4" type="video/mp4">
+            <source src="mid.mp4" type="video/mp4">
         </video>
     </div>
     
@@ -643,9 +644,7 @@
         QUANTIDADE_ANUNCIOS: 2,          // Depois toca 2 anúncios
         ANUNCIO_INICIAL: 'as.m4a',       // Anúncio inicial ao abrir
         ANUNCIO_SEQUENCIA: 'sa.m4a',     // Anúncio entre músicas
-        VIDEO_SPLASH: 'mid.mp4',         // Vídeo da splash
-        VIDEO_PRINCIPAL: 'paixi1.mp4',   // Vídeo principal
-        VINHETAS: ['radiopm.mp3', 'Paticom.mp3', 'zzvc.mp3']
+        VIDEO_PRINCIPAL: 'mid.mp4'       // Vídeo que roda o tempo todo
     };
 
     // ==================== PLAYLIST ====================
@@ -850,6 +849,7 @@
             
             atualizarTrackInfo(track);
             updateGenreBadge(track.genero);
+            // NÃO MUDA O VÍDEO - mantém mid.mp4 sempre
 
             return new Promise((resolve) => {
                 let timeout = setTimeout(() => {
@@ -1080,6 +1080,7 @@
             state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
             state.contadorMusicas = 0;
             atualizarTrackInfo(state.filteredPlaylist[state.currentIndex]);
+            // NÃO MUDA O VÍDEO - mantém mid.mp4
             
             if (state.isPlaying) PlayerEngine.play();
         }
@@ -1097,6 +1098,7 @@
         atualizarTrackInfo(state.filteredPlaylist[0]);
         updateMarquee();
         mostrarNotificacao('🔴 Modo AO VIVO ativado!', 2000);
+        // NÃO MUDA O VÍDEO - mantém mid.mp4
         if (state.isPlaying) PlayerEngine.play();
     }
 
@@ -1156,6 +1158,8 @@
         }, 800);
         
         dom.appRoot.style.display = 'block';
+        
+        // Garante que o vídeo principal mid.mp4 está rodando
         dom.mainVideo.play().catch(e => console.warn);
 
         // Setup visualizer
@@ -1386,6 +1390,7 @@
     async function init() {
         console.log(`✅ Rádio Loja inicializada | Playlist: ${PLAYLIST.length} músicas`);
         console.log(`📋 Config: ${CONFIG.MUSICAS_ENTRE_ANUNCIOS} músicas → ${CONFIG.QUANTIDADE_ANUNCIOS} anúncios (${CONFIG.ANUNCIO_SEQUENCIA})`);
+        console.log(`🎬 Vídeo principal: ${CONFIG.VIDEO_PRINCIPAL} (rodando o tempo todo)`);
         
         carregarStats();
         dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
@@ -1421,6 +1426,7 @@
     }
 
     console.log('🚀 Rádio Loja pronta! Clique em "ATIVAR RÁDIO" para começar.');
+    console.log('🎬 Vídeo mid.mp4 configurado para rodar continuamente.');
 </script>
 </body>
 </html>
