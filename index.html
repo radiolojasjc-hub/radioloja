@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -438,7 +439,7 @@
 
         <div class="music-info">
             <div class="track-name" id="trackName">🎵 Clique no botão ATIVAR</div>
-            <div class="track-artist" id="trackArtist">2 músicas • Música ambiente</div>
+            <div class="track-artist" id="trackArtist">Anúncio + Música • Loop infinito</div>
         </div>
 
         <div class="progress-area">
@@ -503,7 +504,7 @@
         <h2>📘 Como Funciona</h2>
         <div style="text-align: left;">
             <p><strong>🔊 LÓGICA EXATA:</strong></p>
-            <p style="color: #00f3ff; font-weight: bold;">✅ ANÚNCIO → MÚSICA 1 → MÚSICA 2 → ANÚNCIO → MÚSICA 3 → MÚSICA 4...</p>
+            <p style="color: #00f3ff; font-weight: bold;">✅ ANÚNCIO → 1 MÚSICA → ANÚNCIO → 1 MÚSICA DIFERENTE → ANÚNCIO...</p>
             <p style="margin-top: 10px;"><strong>🎮 GESTOS:</strong><br>
             Toque na tela = mostra/esconde controles<br>
             Deslizar ← → = trocar música<br>
@@ -530,7 +531,7 @@
         document.getElementById(modalId).classList.remove('open');
     }
 
-    // ==================== TODAS AS 25 MÚSICAS COM URLs FUNCIONAIS ====================
+    // ==================== 25 MÚSICAS ====================
     const ALL_SONGS = [
         { title: "Billie Jean", artist: "Michael Jackson", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
         { title: "Torn", artist: "Natalie Imbruglia", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
@@ -561,8 +562,7 @@
 
     // ==================== ANÚNCIOS ====================
     const ADS = [
-        { text: "📢 Ótica São Miguel! Qualidade em armações e lentes", src: "as.m4a" },
-        { text: "📢 Promoção especial! Visite nossa loja", src: "sa.m4a" }
+        { text: "📢 Promoção especial! Armações com desconto e lentes de precisão!", src: "sa.m4a" }
     ];
 
     // ==================== CONFIGURAÇÕES ====================
@@ -573,9 +573,8 @@
     let autoHideTimer = null;
     let progressInterval = null;
     let currentAdIndex = 0;
-    let musicCountInCycle = 0;
-    let currentMusicList = [];
-    let musicHistory = [];
+    let lastPlayedSong = null; // Guarda a última música tocada
+    let nextSong = null; // Próxima música a tocar
     
     const audio = document.getElementById('audioPlayer');
     const playerContainer = document.getElementById('playerContainer');
@@ -609,7 +608,7 @@
             statusSpan.style.background = "rgba(255, 107, 107, 0.3)";
             statusSpan.style.borderLeftColor = "#ff6b6b";
         } else {
-            statusSpan.innerHTML = `<i class="fas fa-music"></i> MÚSICA ${musicCountInCycle + 1}/2`;
+            statusSpan.innerHTML = '<i class="fas fa-music"></i> MÚSICA';
             statusSpan.style.background = "rgba(0, 243, 255, 0.2)";
             statusSpan.style.borderLeftColor = "#00f3ff";
         }
@@ -646,51 +645,30 @@
         }
     }
     
-    function getRandomTwoSongs() {
-        const availableSongs = ALL_SONGS.filter(song => !musicHistory.includes(song.title));
+    // Função para pegar uma música diferente da última tocada
+    function getRandomSongDifferentFrom(lastSong) {
+        // Filtra as músicas que são diferentes da última
+        let availableSongs = ALL_SONGS.filter(song => song.title !== lastSong?.title);
         
-        let songsToUse = [];
-        
-        if (availableSongs.length >= 2) {
-            const shuffled = [...availableSongs];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            songsToUse = [shuffled[0], shuffled[1]];
-        } else {
-            musicHistory = [];
-            const shuffled = [...ALL_SONGS];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            songsToUse = [shuffled[0], shuffled[1]];
+        // Se não houver músicas diferentes (caso raro), usa todas menos a última
+        if (availableSongs.length === 0) {
+            availableSongs = ALL_SONGS;
         }
         
-        musicHistory.push(songsToUse[0].title);
-        musicHistory.push(songsToUse[1].title);
-        
-        if (musicHistory.length > 10) {
-            musicHistory = musicHistory.slice(-10);
-        }
-        
-        console.log("🎵 Músicas selecionadas:", songsToUse[0].title, "e", songsToUse[1].title);
-        return songsToUse;
+        const randomIndex = Math.floor(Math.random() * availableSongs.length);
+        return availableSongs[randomIndex];
     }
     
-    function playNextMusicInCycle() {
-        if (!isActive || isAdPlaying) return;
+    // Tocar música (chamada após anúncio ou início)
+    function playMusic() {
+        if (!isActive) return;
         
-        if (!currentMusicList.length || musicCountInCycle >= 2) {
-            console.log("🎵 Carregando novo par de músicas...");
-            currentMusicList = getRandomTwoSongs();
-            musicCountInCycle = 0;
-        }
+        // Pega uma música diferente da última tocada
+        const song = getRandomSongDifferentFrom(lastPlayedSong);
+        nextSong = song;
         
-        const song = currentMusicList[musicCountInCycle];
         document.getElementById('trackName').textContent = song.title;
-        document.getElementById('trackArtist').textContent = `🎧 Música ${musicCountInCycle + 1} de 2 • Tocando agora`;
+        document.getElementById('trackArtist').textContent = `🎧 ${song.artist} • Tocando agora`;
         
         audio.src = song.src;
         audio.load();
@@ -699,23 +677,32 @@
             audio.play().then(() => {
                 isPlaying = true;
                 isAdPlaying = false;
+                lastPlayedSong = song; // Guarda como última música tocada
                 document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
                 startProgressTimer();
                 updateStatus();
-                console.log(`🎵 TOCANDO MÚSICA ${musicCountInCycle + 1}/2: ${song.title}`);
+                console.log(`🎵 TOCANDO MÚSICA: ${song.title} - ${song.artist}`);
             }).catch(err => {
                 console.log("Erro ao tocar música:", err);
-                setTimeout(() => playNextMusicInCycle(), 500);
+                setTimeout(() => playMusic(), 500);
             });
         };
         
         audio.onerror = () => {
-            console.log("Erro no arquivo de música, tentando próxima...");
-            musicCountInCycle++;
-            playNextMusicInCycle();
+            console.log("Erro no arquivo de música, tentando outra...");
+            playMusic(); // Tenta outra música
+        };
+        
+        // Quando a música terminar, toca o próximo anúncio
+        audio.onended = () => {
+            if (!isAdPlaying && isActive) {
+                console.log("🎵 MÚSICA FINALIZADA! Iniciando próximo anúncio...");
+                playAd();
+            }
         };
     }
     
+    // Tocar anúncio
     function playAd() {
         if (!isActive) return;
         
@@ -753,30 +740,11 @@
     }
     
     function finalizarAnuncio() {
-        console.log("✅ ANÚNCIO FINALIZADO! Voltando para as músicas...");
+        console.log("✅ ANÚNCIO FINALIZADO! Iniciando próxima música...");
         isAdPlaying = false;
-        musicCountInCycle = 0;
-        currentMusicList = getRandomTwoSongs();
-        playNextMusicInCycle();
+        playMusic(); // Toca uma música DIFERENTE da anterior
         updateStatus();
     }
-    
-    audio.onended = () => {
-        if (isAdPlaying) return;
-        
-        if (isActive && isPlaying) {
-            musicCountInCycle++;
-            console.log(`🎵 Música finalizada. musicCountInCycle = ${musicCountInCycle}`);
-            
-            if (musicCountInCycle >= 2) {
-                console.log("🔁 2 MÚSICAS TOCADAS! INICIANDO ANÚNCIO...");
-                playAd();
-            } else {
-                console.log("🎵 Tocando PRÓXIMA música do ciclo...");
-                playNextMusicInCycle();
-            }
-        }
-    };
     
     function pauseMusic() {
         if (audio.src && !audio.paused) {
@@ -807,36 +775,27 @@
                     document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
                     startProgressTimer();
                 }).catch(() => {
-                    playNextMusicInCycle();
+                    playMusic();
                 });
             } else {
-                playNextMusicInCycle();
+                playMusic();
             }
         }
     }
     
+    // Pular para próxima (cancela música atual e vai para anúncio)
     function nextTrack() {
         if (!isActive || isAdPlaying || isLoading) return;
         
         if (isPlaying) {
-            if (audio.src) {
-                audio.pause();
-                if (musicCountInCycle < 2) {
-                    musicCountInCycle++;
-                    if (musicCountInCycle >= 2) {
-                        playAd();
-                    } else {
-                        playNextMusicInCycle();
-                    }
-                } else {
-                    playAd();
-                }
-            }
+            audio.pause();
+            console.log("⏭️ Pular para próximo anúncio");
+            playAd();
         }
     }
     
     function prevTrack() {
-        nextTrack();
+        nextTrack(); // Mesma ação: pula para próximo
     }
     
     function goFullscreen() {
@@ -889,7 +848,7 @@
         showLoading(true);
         
         try {
-            // Ativar áudio
+            // Desbloquear áudio
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             const ctx = new AudioContext();
             
@@ -910,16 +869,17 @@
             // Tela cheia automática
             await document.documentElement.requestFullscreen();
             
-            showNotification("🎬 SISTEMA ATIVADO! ANÚNCIO → 2 MÚSICAS → ANÚNCIO...", 4000);
+            showNotification("🎬 SISTEMA ATIVADO! ANÚNCIO → MÚSICA → ANÚNCIO...", 4000);
             
-            musicCountInCycle = 0;
+            // Reset das variáveis
             currentAdIndex = 0;
-            currentMusicList = [];
-            musicHistory = [];
+            lastPlayedSong = null;
+            nextSong = null;
             
             const video = document.getElementById('bgVideo');
             video.play().catch(e => console.log("Vídeo:", e));
             
+            // COMEÇA COM ANÚNCIO!
             setTimeout(() => {
                 playAd();
             }, 300);
@@ -1036,8 +996,7 @@
     video.play().catch(e => console.log("Aguardando interação"));
     
     showNotification("🎬 Clique no botão ATIVAR SISTEMA para começar!", 5000);
-    console.log("✅ SISTEMA PRONTO - 25 MÚSICAS CARREGADAS!");
-    console.log("🎵 AS MÚSICAS VÃO TOCAR AGORA! URLs funcionais!");
+    console.log("✅ SISTEMA PRONTO - LÓGICA: ANÚNCIO → 1 MÚSICA DIFERENTE → ANÚNCIO...");
 </script>
 </body>
 </html>
