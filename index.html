@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -576,6 +577,7 @@
     let musicCountInCycle = 0;
     let currentMusicList = [];
     let remainingMusicIndices = [];
+    let adTimeout = null; // TIMER PARA GARANTIR QUE O ANÚNCIO NÃO TRAVE
     
     const audio = document.getElementById('audioPlayer');
     const playerContainer = document.getElementById('playerContainer');
@@ -741,7 +743,7 @@
         audio.src = song.src;
         audio.load();
         
-        audio.oncanplaythrough = () => {
+        const tryPlay = () => {
             audio.play().then(() => {
                 isPlaying = true;
                 isAdPlaying = false;
@@ -749,13 +751,14 @@
                 startProgressTimer();
                 startVisualizer();
                 updateStatus();
-                console.log(`🎵 TOCANDO MÚSICA ${musicCountInCycle + 1}/2: ${song.title} - ${song.artist}`);
+                console.log(`🎵 TOCANDO MÚSICA ${musicCountInCycle + 1}/2: ${song.title}`);
             }).catch(err => {
                 console.log("Erro ao tocar música:", err);
-                setTimeout(() => playNextMusicInCycle(), 500);
+                setTimeout(tryPlay, 500);
             });
         };
         
+        audio.oncanplaythrough = tryPlay;
         audio.onerror = () => {
             console.log("Erro no arquivo de música, tentando próxima...");
             musicCountInCycle++;
@@ -763,8 +766,33 @@
         };
     }
     
+    function finalizarAnuncio() {
+        // Limpar qualquer timeout pendente
+        if (adTimeout) {
+            clearTimeout(adTimeout);
+            adTimeout = null;
+        }
+        
+        console.log("✅ ANÚNCIO FINALIZADO! Voltando para as músicas...");
+        isAdPlaying = false;
+        isPlaying = false;
+        document.getElementById('adToast').classList.remove('show');
+        
+        // Resetar o ciclo para tocar 2 músicas
+        musicCountInCycle = 0;
+        currentMusicList = getRandomTwoSongs();
+        playNextMusicInCycle();
+        updateStatus();
+    }
+    
     function playAd() {
         if (!isActive) return;
+        
+        // Limpar qualquer anúncio anterior
+        if (adTimeout) {
+            clearTimeout(adTimeout);
+            adTimeout = null;
+        }
         
         isAdPlaying = true;
         isPlaying = false;
@@ -784,9 +812,18 @@
         
         document.getElementById('trackName').textContent = "📢 ANÚNCIO - Ótica São Miguel";
         document.getElementById('trackArtist').textContent = ad.text;
+        document.getElementById('progressFill').style.width = '0%';
         
         audio.src = ad.src;
         audio.load();
+        
+        // TIMER DE SEGURANÇA - Força finalização após 10 segundos (evita travamento)
+        adTimeout = setTimeout(() => {
+            if (isAdPlaying) {
+                console.log("⏰ TIMER DE SEGURANÇA: Anúncio demorou muito, finalizando...");
+                finalizarAnuncio();
+            }
+        }, 10000);
         
         audio.oncanplaythrough = () => {
             audio.play().catch(err => {
@@ -796,6 +833,7 @@
         };
         
         audio.onended = () => {
+            console.log("📢 Anúncio terminou naturalmente");
             finalizarAnuncio();
         };
         
@@ -805,32 +843,8 @@
         };
     }
     
-    function finalizarAnuncio() {
-        console.log("✅ ANÚNCIO FINALIZADO! Voltando para as músicas...");
-        isAdPlaying = false;
-        document.getElementById('adToast').classList.remove('show');
-        musicCountInCycle = 0;
-        currentMusicList = getRandomTwoSongs();
-        playNextMusicInCycle();
-        updateStatus();
-    }
-    
-    audio.onended = () => {
-        if (isAdPlaying) return;
-        
-        if (isActive && isPlaying) {
-            musicCountInCycle++;
-            console.log(`🎵 Música finalizada. musicCountInCycle = ${musicCountInCycle}`);
-            
-            if (musicCountInCycle >= 2) {
-                console.log("🔁 2 MÚSICAS TOCADAS! INICIANDO ANÚNCIO...");
-                playAd();
-            } else {
-                console.log("🎵 Tocando PRÓXIMA música do ciclo...");
-                playNextMusicInCycle();
-            }
-        }
-    };
+    // IMPORTANTE: Remover o onended genérico para não conflitar
+    // O controle agora é feito pelo playAd e finalizarAnuncio
     
     function pauseMusic() {
         if (audio.src && !audio.paused) {
@@ -1049,7 +1063,6 @@
     resetMusicPool();
     showNotification("🎬 Clique no botão verde para começar! Lógica: ANÚNCIO → 2 MÚSICAS → ANÚNCIO...", 5000);
     console.log("✅ SISTEMA PRONTO - 25 MÚSICAS disponíveis");
-    console.log("📁 Arquivos necessários: video.mp4, anuncio1.mp3, anuncio2.mp3, e os 25 arquivos de música .m4a/.mp3");
 </script>
 </body>
 </html>
