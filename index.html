@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -439,7 +438,7 @@
 
         <div class="music-info">
             <div class="track-name" id="trackName">🎵 Clique no botão ATIVAR</div>
-            <div class="track-artist" id="trackArtist">Anúncio + Música • Loop infinito</div>
+            <div class="track-artist" id="trackArtist">Música ambiente</div>
         </div>
 
         <div class="progress-area">
@@ -504,7 +503,7 @@
         <h2>📘 Como Funciona</h2>
         <div style="text-align: left;">
             <p><strong>🔊 LÓGICA EXATA:</strong></p>
-            <p style="color: #00f3ff; font-weight: bold;">✅ ANÚNCIO → 1 MÚSICA → ANÚNCIO → 1 MÚSICA DIFERENTE → ANÚNCIO...</p>
+            <p style="color: #00f3ff; font-weight: bold;">✅ ANÚNCIO → MÚSICA → ANÚNCIO → MÚSICA → ANÚNCIO...</p>
             <p style="margin-top: 10px;"><strong>🎮 GESTOS:</strong><br>
             Toque na tela = mostra/esconde controles<br>
             Deslizar ← → = trocar música<br>
@@ -531,38 +530,33 @@
         document.getElementById(modalId).classList.remove('open');
     }
 
-    // ==================== 25 MÚSICAS ====================
+    // ==================== TODAS AS 25 MÚSICAS ====================
     const ALL_SONGS = [
-        { title: "Billie Jean", artist: "Michael Jackson", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-        { title: "Torn", artist: "Natalie Imbruglia", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-        { title: "Sunrise", artist: "Simply Red", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-        { title: "Hips Don't Lie", artist: "Shakira", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-        { title: "Haven't Met You Yet", artist: "Michael Bublé", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
-        { title: "It Ain't Over", artist: "Lenny Kravitz", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
-        { title: "Down Under", artist: "Arthur Rodrigues", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
-        { title: "Love Come Down", artist: "Evelyn King", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
-        { title: "Sultans of Swing", artist: "Dire Straits", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
-        { title: "Destilado", artist: "Ludmilla", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" },
-        { title: "Telepatia", artist: "Ferrugem", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-        { title: "Champanhe", artist: "Grupo Menos Mais", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-        { title: "Lance Livre", artist: "Kamisa 10", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-        { title: "KIiko no Pagode", artist: "KIiko", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-        { title: "Seu Brilho Sumiu", artist: "Israel & Rodolffo", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
-        { title: "Desbloqueado", artist: "Diego & Victor Hugo", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
-        { title: "Vontade de Prestar", artist: "Nattan", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
-        { title: "Até Você Voltar", artist: "Marília Mendonça", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
-        { title: "Retrovisor", artist: "Gusttavo Lima", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
-        { title: "Que Era Eu", artist: "Lauana Prado", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" },
-        { title: "A Tal Canção Pra Lua", artist: "Vitor Kley", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-        { title: "A Namorada", artist: "Carlinhos Brown", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-        { title: "Sorri Sou Rei", artist: "Natiruts", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-        { title: "Na Estrada", artist: "Na Estrada", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-        { title: "Resposta", artist: "Skank", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
-    ];
-
-    // ==================== ANÚNCIOS ====================
-    const ADS = [
-        { text: "📢 Promoção especial! Armações com desconto e lentes de precisão!", src: "sa.m4a" }
+        { title: "Billie Jean", artist: "Michael Jackson", src: "Billie_Jean_muzzik.m4a" },
+        { title: "Torn", artist: "Natalie Imbruglia", src: "Torn_muzzik.m4a" },
+        { title: "Sunrise", artist: "Simply Red", src: "Sunrise_muzzik.m4a" },
+        { title: "Hips Don't Lie", artist: "Shakira", src: "Hips_Don_t_Lie_muzzik.m4a" },
+        { title: "Haven't Met You Yet", artist: "Michael Bublé", src: "Haven_t_Met_You_Yet_muzzik.m4a" },
+        { title: "It Ain't Over", artist: "Lenny Kravitz", src: "It_Ain_t_Over_Til_It_s_Over_muzzik.m4a" },
+        { title: "Down Under", artist: "Arthur Rodrigues", src: "Down_Under_muzzik.m4a" },
+        { title: "Love Come Down", artist: "Evelyn King", src: "Love_Come_Down_muzzik.m4a" },
+        { title: "Sultans of Swing", artist: "Dire Straits", src: "Sultans_of_Swing_muzzik.m4a" },
+        { title: "Destilado", artist: "Ludmilla", src: "LUDMILLA_Destilado_muzzik.m4a" },
+        { title: "Telepatia", artist: "Ferrugem", src: "Ferrugem_Telepatia_part_Thiaguinho_muzzik.m4a" },
+        { title: "Champanhe", artist: "Grupo Menos Mais", src: "Grupo_Menos_Mais_Champanhe_muzzik.m4a" },
+        { title: "Lance Livre", artist: "Kamisa 10", src: "Kamisa_10_-_Lance_Livre_NA_VIBE_DO_K10.mp3" },
+        { title: "KIiko no Pagode", artist: "KIiko", src: "KIiko_no_Pagode.m4a" },
+        { title: "Seu Brilho Sumiu", artist: "Israel & Rodolffo", src: "Israel_Rodolffo_MariFernandez_-_Seu_Brilho_Sumiu.mp3" },
+        { title: "Desbloqueado", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_-_Desbloqueado.mp3" },
+        { title: "Vontade de Prestar", artist: "Nattan", src: "Nattan_Vontade_de_Prestar_muzzik.m4a" },
+        { title: "Até Você Voltar", artist: "Marília Mendonça", src: "Mar_lia_Mendon_a_At_Voc_Voltar_muzzik.m4a" },
+        { title: "Retrovisor", artist: "Gusttavo Lima", src: "Gusttavo_Lima_Retrovisor_DVD_muzzik.m4a" },
+        { title: "Que Era Eu", artist: "Lauana Prado", src: "LAUANA_PRADO_QUE_ERA_EU_UM_DIA_DE_DOMINGO.m4a" },
+        { title: "A Tal Canção Pra Lua", artist: "Vitor Kley", src: "Vitor_Kley_Samuel_Rosa_A_Tal_Can_o_Pra_Lua_muzzik.m4a" },
+        { title: "A Namorada", artist: "Carlinhos Brown", src: "A_Namorada_A_Namorada_Carlinhos_Brown_muzzik.m4a" },
+        { title: "Sorri Sou Rei", artist: "Natiruts", src: "Natiruts_Sorri_Sou_Rei_muzzik.m4a" },
+        { title: "Na Estrada", artist: "Na Estrada", src: "Na_Estrada_Na_Estrada_muzzik.m4a" },
+        { title: "Resposta", artist: "Skank", src: "Skank_Resposta.m4a" }
     ];
 
     // ==================== CONFIGURAÇÕES ====================
@@ -572,9 +566,8 @@
     let isLoading = false;
     let autoHideTimer = null;
     let progressInterval = null;
-    let currentAdIndex = 0;
-    let lastPlayedSong = null; // Guarda a última música tocada
-    let nextSong = null; // Próxima música a tocar
+    let musicHistory = [];
+    let currentSongIndex = 0;
     
     const audio = document.getElementById('audioPlayer');
     const playerContainer = document.getElementById('playerContainer');
@@ -645,28 +638,40 @@
         }
     }
     
-    // Função para pegar uma música diferente da última tocada
-    function getRandomSongDifferentFrom(lastSong) {
-        // Filtra as músicas que são diferentes da última
-        let availableSongs = ALL_SONGS.filter(song => song.title !== lastSong?.title);
+    function getRandomSong() {
+        // Filtra músicas que não estão no histórico recente
+        const availableSongs = ALL_SONGS.filter(song => !musicHistory.includes(song.title));
         
-        // Se não houver músicas diferentes (caso raro), usa todas menos a última
-        if (availableSongs.length === 0) {
-            availableSongs = ALL_SONGS;
+        let songToUse;
+        
+        if (availableSongs.length > 0) {
+            const randomIndex = Math.floor(Math.random() * availableSongs.length);
+            songToUse = availableSongs[randomIndex];
+        } else {
+            // Se todas já foram tocadas, limpa histórico
+            musicHistory = [];
+            const randomIndex = Math.floor(Math.random() * ALL_SONGS.length);
+            songToUse = ALL_SONGS[randomIndex];
         }
         
-        const randomIndex = Math.floor(Math.random() * availableSongs.length);
-        return availableSongs[randomIndex];
+        // Adiciona ao histórico
+        musicHistory.push(songToUse.title);
+        
+        // Mantém histórico com no máximo 10 músicas
+        if (musicHistory.length > 10) {
+            musicHistory = musicHistory.slice(-10);
+        }
+        
+        console.log("🎵 Música selecionada:", songToUse.title);
+        console.log("📜 Histórico:", musicHistory);
+        
+        return songToUse;
     }
     
-    // Tocar música (chamada após anúncio ou início)
     function playMusic() {
-        if (!isActive) return;
+        if (!isActive || isAdPlaying) return;
         
-        // Pega uma música diferente da última tocada
-        const song = getRandomSongDifferentFrom(lastPlayedSong);
-        nextSong = song;
-        
+        const song = getRandomSong();
         document.getElementById('trackName').textContent = song.title;
         document.getElementById('trackArtist').textContent = `🎧 ${song.artist} • Tocando agora`;
         
@@ -677,11 +682,10 @@
             audio.play().then(() => {
                 isPlaying = true;
                 isAdPlaying = false;
-                lastPlayedSong = song; // Guarda como última música tocada
                 document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
                 startProgressTimer();
                 updateStatus();
-                console.log(`🎵 TOCANDO MÚSICA: ${song.title} - ${song.artist}`);
+                console.log(`🎵 TOCANDO MÚSICA: ${song.title}`);
             }).catch(err => {
                 console.log("Erro ao tocar música:", err);
                 setTimeout(() => playMusic(), 500);
@@ -690,19 +694,10 @@
         
         audio.onerror = () => {
             console.log("Erro no arquivo de música, tentando outra...");
-            playMusic(); // Tenta outra música
-        };
-        
-        // Quando a música terminar, toca o próximo anúncio
-        audio.onended = () => {
-            if (!isAdPlaying && isActive) {
-                console.log("🎵 MÚSICA FINALIZADA! Iniciando próximo anúncio...");
-                playAd();
-            }
+            playMusic();
         };
     }
     
-    // Tocar anúncio
     function playAd() {
         if (!isActive) return;
         
@@ -710,16 +705,13 @@
         isPlaying = false;
         stopProgressTimer();
         
-        const ad = ADS[currentAdIndex % ADS.length];
-        currentAdIndex++;
-        
-        console.log(`📢 TOCANDO ANÚNCIO ${currentAdIndex}: ${ad.text}`);
+        console.log(`📢 TOCANDO ANÚNCIO sa.m4a`);
         updateStatus();
         
         document.getElementById('trackName').textContent = "📢 ANÚNCIO - Ótica São Miguel";
-        document.getElementById('trackArtist').textContent = ad.text;
+        document.getElementById('trackArtist').textContent = "Promoção especial em armações e lentes!";
         
-        audio.src = ad.src;
+        audio.src = "sa.m4a";
         audio.load();
         
         audio.oncanplaythrough = () => {
@@ -740,11 +732,20 @@
     }
     
     function finalizarAnuncio() {
-        console.log("✅ ANÚNCIO FINALIZADO! Iniciando próxima música...");
+        console.log("✅ ANÚNCIO FINALIZADO! Tocando próxima música...");
         isAdPlaying = false;
-        playMusic(); // Toca uma música DIFERENTE da anterior
+        playMusic();
         updateStatus();
     }
+    
+    audio.onended = () => {
+        if (isAdPlaying) return;
+        
+        if (isActive && isPlaying) {
+            console.log("🎵 Música finalizada! Iniciando anúncio...");
+            playAd();
+        }
+    };
     
     function pauseMusic() {
         if (audio.src && !audio.paused) {
@@ -783,19 +784,17 @@
         }
     }
     
-    // Pular para próxima (cancela música atual e vai para anúncio)
     function nextTrack() {
         if (!isActive || isAdPlaying || isLoading) return;
         
         if (isPlaying) {
             audio.pause();
-            console.log("⏭️ Pular para próximo anúncio");
             playAd();
         }
     }
     
     function prevTrack() {
-        nextTrack(); // Mesma ação: pula para próximo
+        nextTrack();
     }
     
     function goFullscreen() {
@@ -848,7 +847,6 @@
         showLoading(true);
         
         try {
-            // Desbloquear áudio
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             const ctx = new AudioContext();
             
@@ -866,20 +864,15 @@
             isActive = true;
             document.getElementById('activateBtn').style.display = 'none';
             
-            // Tela cheia automática
             await document.documentElement.requestFullscreen();
             
             showNotification("🎬 SISTEMA ATIVADO! ANÚNCIO → MÚSICA → ANÚNCIO...", 4000);
             
-            // Reset das variáveis
-            currentAdIndex = 0;
-            lastPlayedSong = null;
-            nextSong = null;
+            musicHistory = [];
             
             const video = document.getElementById('bgVideo');
             video.play().catch(e => console.log("Vídeo:", e));
             
-            // COMEÇA COM ANÚNCIO!
             setTimeout(() => {
                 playAd();
             }, 300);
@@ -996,7 +989,8 @@
     video.play().catch(e => console.log("Aguardando interação"));
     
     showNotification("🎬 Clique no botão ATIVAR SISTEMA para começar!", 5000);
-    console.log("✅ SISTEMA PRONTO - LÓGICA: ANÚNCIO → 1 MÚSICA DIFERENTE → ANÚNCIO...");
+    console.log("✅ SISTEMA PRONTO - LÓGICA: ANÚNCIO → MÚSICA → ANÚNCIO → MÚSICA...");
+    console.log("🎵 25 MÚSICAS CARREGADAS!");
 </script>
 </body>
 </html>
