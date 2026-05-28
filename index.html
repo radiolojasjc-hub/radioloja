@@ -421,23 +421,22 @@
     const playerContainer = document.getElementById('playerContainer');
     const nowPlayingSpan = document.getElementById('nowPlayingText');
     
-    // ==================== SUAS 4 MÚSICAS NUMERADAS ====================
+    // ==================== SUAS 13 MÚSICAS CORRIGIDAS ====================
     const ALL_SONGS = [
         { id: 1, numero: "01", title: "Haven't Met You Yet", artist: "Michael Bublé", file: "Michael_Bubl_Haven_t_Met_You_Yet.m4a" },
         { id: 2, numero: "02", title: "Sultans of Swing", artist: "Dire Straits", file: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a" },
         { id: 3, numero: "03", title: "It Ain't Over", artist: "Lenny Kravitz", file: "Lenny_Kravitz_It_Ain_t_Over_Til_It_s_Over_muzzik.m4a" },
         { id: 4, numero: "04", title: "Sorri Sou Rei", artist: "Natiruts", file: "Natiruts_Sorri_Sou_Rei_muzzik.m4a" },
-        
-  { id: 5, title: "A_Namorada_A_Namorada_Carlinhos_Brown_muzzik.m4a", artist: "A_Namorada_A_Namorada_Carlinhos_Brown_", src: "A_Namorada_A_Namorada_Carlinhos_Brown_muzzik.m4a", genero: "MPB" },
-  { id: 6, title: "Vitor_Kley_Samuel_Rosa_A_Tal_Can_o_Pra_Lua_muzzik.m4a", artist: "Vitor_Kley_Samuel_Rosa_A_Tal_Can_o_Pra_Lua_muzzik.m4a", src: "Vitor_Kley_Samuel_Rosa_A_Tal_Can_o_Pra_Lua_muzzik.m4a", genero: "POP" },
-  { id: 7, title: "Nattan_Vontade_de_Prestar_muzzik.m4a", artist: "Nattan_Vontade_de_Prestar_muzzik.m4a", src: "Nattan_Vontade_de_Prestar_muzzik.m4a", genero: "FORRÓ" },
-  { id: 8, title: "Natiruts_Sorri_Sou_Rei_muzzik.m4a", artist: "Natiruts_Sorri_Sou_Rei_muzzik.m4a", src: "Natiruts_Sorri_Sou_Rei_muzzik.m4a", genero: "POP" },
-  { id: 9, title: "Skank_Resposta.m4a", artist: "Skank_Resposta.m4a", src: "Skank_Resposta.m4a", genero: "POP" },
-  { id: 10, title: "Grupo_Menos_Mais_Champanhe_muzzik.m4a", artist: "Grupo_Menos_Mais_Champanhe_muzzik.m4a", src: "Grupo_Menos_Mais_Champanhe_muzzik.m4a", genero: "POP" },
-  { id: 11, title: "Kamisa 10 - Lance Livre _ NA VIBE DO K10(MP3_160K).mp3", artist: "Kamisa 10 - Lance Livre _ NA VIBE DO K10(MP3_160K).mp3", src: "Kamisa 10 - Lance Livre _ NA VIBE DO K10(MP3_160K).mp3", genero: "SAMBA" },
-  { id: 12, title: "Ferrugem_Telepatia_part_Thiaguinho_muzzik.m4a", artist: "Ferrugem_Telepatia_part_Thiaguinho_muzzik.m4a", src: "Ferrugem_Telepatia_part_Thiaguinho_muzzik.m4a", genero: "SAMBA" },
-  { id: 13, title: "LUDMILLA_Destilado_muzzik.m4a", artist: "LUDMILLA_Destilado_muzzik.m4a", src: "LUDMILLA_Destilado_muzzik.m4a", genero: "SAMBA" }
-    ]
+        { id: 5, numero: "05", title: "A Namorada", artist: "Carlinhos Brown", file: "A_Namorada_A_Namorada_Carlinhos_Brown_muzzik.m4a" },
+        { id: 6, numero: "06", title: "A Tal Canção Pra Lua", artist: "Vitor Kley & Samuel Rosa", file: "Vitor_Kley_Samuel_Rosa_A_Tal_Can_o_Pra_Lua_muzzik.m4a" },
+        { id: 7, numero: "07", title: "Vontade de Prestar", artist: "Nattan", file: "Nattan_Vontade_de_Prestar_muzzik.m4a" },
+        { id: 8, numero: "08", title: "Sorri Sou Rei", artist: "Natiruts", file: "Natiruts_Sorri_Sou_Rei_muzzik.m4a" },
+        { id: 9, numero: "09", title: "Resposta", artist: "Skank", file: "Skank_Resposta.m4a" },
+        { id: 10, numero: "10", title: "Champanhe", artist: "Grupo Menos Mais", file: "Grupo_Menos_Mais_Champanhe_muzzik.m4a" },
+        { id: 11, numero: "11", title: "Lance Livre", artist: "Kamisa 10", file: "Kamisa 10 - Lance Livre _ NA VIBE DO K10(MP3_160K).mp3" },
+        { id: 12, numero: "12", title: "Telepatia", artist: "Ferrugem part. Thiaguinho", file: "Ferrugem_Telepatia_part_Thiaguinho_muzzik.m4a" },
+        { id: 13, numero: "13", title: "Destilado", artist: "LUDMILLA", file: "LUDMILLA_Destilado_muzzik.m4a" }
+    ];
     
     // ==================== ANÚNCIOS ====================
     const ADS = [
@@ -491,7 +490,7 @@
         currentSongIndex = 0;
         console.log("📀 Playlist embaralhada com", shuffledSongs.length, "músicas");
         shuffledSongs.forEach((song, idx) => {
-            console.log(`  ${idx+1}. [#${song.numero}] ${song.title} - ${song.artist} -> ${song.file}`);
+            console.log(`  ${idx+1}. [${song.numero}] ${song.title} - ${song.artist} -> ${song.file}`);
         });
     }
     
@@ -505,7 +504,7 @@
         
         const song = shuffledSongs[currentSongIndex];
         const displayText = `[${song.numero}] ${song.title} - ${song.artist}`;
-        console.log(`🎵 Tocando: ${displayText}`);
+        console.log(`🎵 Tocando: ${displayText} (arquivo: ${song.file})`);
         updateNowPlaying(displayText);
         showNotification(`🎵 ${displayText}`, 2500);
         
@@ -524,7 +523,7 @@
             });
         };
         
-        audio.onerror = () => {
+        audio.onerror = (e) => {
             console.log(`❌ Arquivo não encontrado: ${song.file}`);
             showNotification(`⚠️ Arquivo não encontrado: ${song.title}`, 2000);
             nextTrack();
@@ -569,8 +568,8 @@
         
         audio.onerror = () => {
             console.log(`❌ Arquivo de anúncio não encontrado: ${ad.src}`);
-            showNotification(`⚠️ Arquivo ${ad.src} não encontrado!`, 3000);
-            setTimeout(() => finalizarAnuncio(), 3000);
+            showNotification(`⚠️ Pulando anúncio...`, 2000);
+            setTimeout(() => finalizarAnuncio(), 2000);
         };
     }
     
@@ -685,14 +684,14 @@
             video.play().catch(e => console.log("Vídeo:", e));
             
             setTimeout(() => {
-                console.log("🎬 INICIANDO COM ANÚNCIO (sa.m4a)...");
+                console.log("🎬 INICIANDO COM ANÚNCIO...");
                 playAd();
             }, 500);
             
             showNotification("🔊 ANÚNCIO → MÚSICA → ANÚNCIO → MÚSICA...", 4000);
             console.log("✅ SISTEMA INICIADO!");
             console.log("📋 Total de músicas:", ALL_SONGS.length);
-            console.log("🎵 Músicas numeradas:");
+            console.log("🎵 LISTA COMPLETA DE MÚSICAS:");
             ALL_SONGS.forEach(s => console.log(`   ${s.numero}. ${s.title} - ${s.artist} -> ${s.file}`));
             
         } catch (err) {
@@ -771,11 +770,9 @@
     const video = document.getElementById('bgVideo');
     video.play().catch(e => console.log("Aguardando interação"));
     
-    console.log("✅ SISTEMA PRONTO - MÚSICAS NUMERADAS 01, 02, 03, 04");
-    console.log("🎵 01 - Michael Bublé - Haven't Met You Yet");
-    console.log("🎵 02 - Dire Straits - Sultans of Swing");
-    console.log("🎵 03 - Lenny Kravitz - It Ain't Over");
-    console.log("🎵 04 - Natiruts - Sorri Sou Rei");
+    console.log("✅ SISTEMA PRONTO - 13 MÚSICAS NO TOTAL!");
+    console.log("🎵 PARA ADICIONAR MAIS MÚSICAS, copie o formato abaixo dentro de ALL_SONGS:");
+    console.log('   { id: 14, numero: "14", title: "Nome da Música", artist: "Artista", file: "arquivo.m4a" },');
 </script>
 </body>
 </html>
