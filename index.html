@@ -369,7 +369,7 @@
         <h2>📘 Como Funciona</h2>
         <div style="text-align: left;">
             <p><strong>🔊 LÓGICA EXATA:</strong></p>
-            <p style="color: #25D366; font-weight: bold;">✅ MÚSICA → ANÚNCIO → MÚSICA → ANÚNCIO → MÚSICA...</p>
+            <p style="color: #25D366; font-weight: bold;">✅ ANÚNCIO → MÚSICA → ANÚNCIO → MÚSICA → ANÚNCIO...</p>
             <p style="margin-top: 10px;"><strong>🎮 GESTOS:</strong><br>
             Toque na tela = mostra/esconde controles<br>
             Deslizar ← → = trocar música<br>
@@ -402,7 +402,7 @@
         { title: "Sorri Sou Rei", artist: "Natiruts", file: "Natiruts_Sorri_Sou_Rei_muzzik.m4a" }
     ];
     
-    // ==================== ANÚNCIO ====================
+    // ==================== ANÚNCIOS ====================
     const ADS = [
         { text: "📢 Ótica São Miguel! Qualidade em armações e lentes.", src: "sa.m4a" },
         { text: "📢 Promoção especial na Ótica São Miguel! Venha conferir.", src: "sa.m4a" }
@@ -654,16 +654,16 @@
             const video = document.getElementById('bgVideo');
             video.play().catch(e => console.log("Vídeo:", e));
             
-            // Começa com MÚSICA primeiro
+            // Começa com ANÚNCIO primeiro
             setTimeout(() => {
-                console.log("🎬 INICIANDO COM MÚSICA...");
-                playMusic();
+                console.log("🎬 INICIANDO COM ANÚNCIO (sa.m4a)...");
+                playAd();
             }, 500);
             
-            showNotification("🔊 MÚSICA → ANÚNCIO → MÚSICA → ANÚNCIO...", 4000);
+            showNotification("🔊 ANÚNCIO → MÚSICA → ANÚNCIO → MÚSICA...", 4000);
             console.log("✅ SISTEMA INICIADO!");
             console.log("📋 Total de músicas:", ALL_SONGS.length);
-            console.log("🎵 LÓGICA: Música → Anúncio → Música → Anúncio...");
+            console.log("🎵 LÓGICA: Anúncio → Música → Anúncio → Música...");
             
         } catch (err) {
             console.error("Erro:", err);
@@ -780,7 +780,7 @@
     const video = document.getElementById('bgVideo');
     video.play().catch(e => console.log("Aguardando interação"));
     
-    console.log("✅ SISTEMA PRONTO - LÓGICA: MÚSICA → ANÚNCIO → MÚSICA → ANÚNCIO...");
+    console.log("✅ SISTEMA PRONTO - LÓGICA: ANÚNCIO → MÚSICA → ANÚNCIO → MÚSICA...");
     console.log("📋 Suas músicas:", ALL_SONGS.map(s => s.title));
 </script>
 </body>
