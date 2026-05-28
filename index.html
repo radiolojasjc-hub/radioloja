@@ -421,12 +421,12 @@
     const playerContainer = document.getElementById('playerContainer');
     const nowPlayingSpan = document.getElementById('nowPlayingText');
     
-    // ==================== SUAS MÚSICAS (FORMATO JSON) ====================
+    // ==================== SUAS 4 MÚSICAS NUMERADAS ====================
     const ALL_SONGS = [
-        { id: 1, title: "Thiago Martins - Onde Deus Possa Me Ouvir", src: "Thiago_Martins_Onde_Deus_Possa_Me_Ouvir_Esperando_Avi_es_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 2, title: "Thiago Martins - Esperando Avisos", src: "Thiago_Martins_Onde_Deus_Possa_Me_Ouvir_Esperando_Avi_es_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 3, title: "Outra Música - Exemplo 1", src: "exemplo1.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 4, title: "Outra Música - Exemplo 2", src: "exemplo2.m4a", genero: "SAMBA", tipo: "normal" }
+        { id: 1, numero: "01", title: "Haven't Met You Yet", artist: "Michael Bublé", file: "Michael_Bubl_Haven_t_Met_You_Yet.m4a" },
+        { id: 2, numero: "02", title: "Sultans of Swing", artist: "Dire Straits", file: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a" },
+        { id: 3, numero: "03", title: "It Ain't Over", artist: "Lenny Kravitz", file: "Lenny_Kravitz_It_Ain_t_Over_Til_It_s_Over_muzzik.m4a" },
+        { id: 4, numero: "04", title: "Sorri Sou Rei", artist: "Natiruts", file: "Natiruts_Sorri_Sou_Rei_muzzik.m4a" }
     ];
     
     // ==================== ANÚNCIOS ====================
@@ -481,7 +481,7 @@
         currentSongIndex = 0;
         console.log("📀 Playlist embaralhada com", shuffledSongs.length, "músicas");
         shuffledSongs.forEach((song, idx) => {
-            console.log(`  ${idx+1}. ${song.title} [${song.genero}] - ${song.src}`);
+            console.log(`  ${idx+1}. [#${song.numero}] ${song.title} - ${song.artist} -> ${song.file}`);
         });
     }
     
@@ -494,11 +494,12 @@
         }
         
         const song = shuffledSongs[currentSongIndex];
-        console.log(`🎵 Tocando música: ${song.title} (${song.genero})`);
-        updateNowPlaying(`${song.title} • ${song.genero}`);
-        showNotification(`🎵 ${song.title} [${song.genero}]`, 2500);
+        const displayText = `[${song.numero}] ${song.title} - ${song.artist}`;
+        console.log(`🎵 Tocando: ${displayText}`);
+        updateNowPlaying(displayText);
+        showNotification(`🎵 ${displayText}`, 2500);
         
-        audio.src = song.src;
+        audio.src = song.file;
         audio.load();
         
         audio.oncanplaythrough = () => {
@@ -506,7 +507,7 @@
                 isPlaying = true;
                 isAdPlaying = false;
                 document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
-                console.log("✅ Música tocando...");
+                console.log("✅ Música tocando com sucesso!");
             }).catch(err => {
                 console.log("Erro ao tocar música:", err);
                 setTimeout(() => playMusic(), 500);
@@ -514,7 +515,7 @@
         };
         
         audio.onerror = () => {
-            console.log(`❌ Arquivo não encontrado: ${song.src}`);
+            console.log(`❌ Arquivo não encontrado: ${song.file}`);
             showNotification(`⚠️ Arquivo não encontrado: ${song.title}`, 2000);
             nextTrack();
         };
@@ -531,7 +532,6 @@
         const ad = ADS[currentAdIndex % ADS.length];
         currentAdIndex++;
         
-        // Mostra notificação do anúncio
         const adToast = document.getElementById('adToast');
         const adToastText = document.getElementById('adToastText');
         adToastText.innerHTML = `<i class="fas fa-bullhorn"></i> ${ad.text}`;
@@ -569,7 +569,6 @@
         isAdPlaying = false;
         document.getElementById('adToast').classList.remove('show');
         
-        // Avança para próxima música
         currentSongIndex++;
         if (currentSongIndex >= shuffledSongs.length) {
             console.log("📀 Playlist completa! Embaralhando novamente...");
@@ -579,44 +578,36 @@
         playMusic();
     }
     
-    // Quando a música acabar, toca anúncio
     audio.onended = () => {
         if (isAdPlaying) return;
-        
         if (isActive && isPlaying) {
             console.log("🎵 Música finalizada! Iniciando anúncio...");
             playAd();
         }
     };
     
-    // Próxima música (pula música atual e toca anúncio)
     function nextTrack() {
         if (!isActive || isAdPlaying) return;
-        
         if (isPlaying) {
             audio.pause();
             console.log("⏭️ Pulando música...");
-            // Avança para próxima música
             currentSongIndex++;
             if (currentSongIndex >= shuffledSongs.length) {
                 initPlaylist();
             }
-            // Toca anúncio antes da próxima música
             playAd();
         }
     }
     
-    // Música anterior
     function prevTrack() {
         if (!isActive || isAdPlaying) return;
-        
         if (isPlaying) {
             audio.pause();
             currentSongIndex--;
             if (currentSongIndex < 0) {
                 currentSongIndex = shuffledSongs.length - 1;
             }
-            playAd(); // Toca anúncio antes da música anterior
+            playAd();
         }
     }
     
@@ -633,12 +624,10 @@
             showNotification("Clique no botão verde primeiro!", 2000);
             return;
         }
-        
         if (isAdPlaying) {
             showNotification("Anúncio em execução, aguarde...", 1500);
             return;
         }
-        
         if (isPlaying) {
             pauseMusic();
             updateNowPlaying("⏸ Pausado");
@@ -647,25 +636,20 @@
                 audio.play().then(() => {
                     isPlaying = true;
                     document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
-                    const currentSong = shuffledSongs[currentSongIndex];
-                    if (currentSong) updateNowPlaying(`${currentSong.title} • ${currentSong.genero}`);
-                }).catch(() => {
-                    playMusic();
-                });
+                    const song = shuffledSongs[currentSongIndex];
+                    if (song) updateNowPlaying(`[${song.numero}] ${song.title} - ${song.artist}`);
+                }).catch(() => playMusic());
             } else {
                 playMusic();
             }
         }
     }
     
-    // ==================== INICIAR SISTEMA ====================
     async function startSystem() {
         if (isActive) return;
-        
         showNotification("🎬 Iniciando sistema...", 2000);
         
         try {
-            // Ativa áudio para dispositivos móveis
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             const ctx = new AudioContext();
             const oscillator = ctx.createOscillator();
@@ -681,19 +665,15 @@
             isActive = true;
             document.getElementById('activateBtn').style.display = 'none';
             
-            // Tela cheia
             try {
                 await document.documentElement.requestFullscreen();
             } catch(e) {}
             
-            // Inicia playlist
             initPlaylist();
             
-            // Inicia vídeo
             const video = document.getElementById('bgVideo');
             video.play().catch(e => console.log("Vídeo:", e));
             
-            // Começa com ANÚNCIO primeiro
             setTimeout(() => {
                 console.log("🎬 INICIANDO COM ANÚNCIO (sa.m4a)...");
                 playAd();
@@ -702,8 +682,8 @@
             showNotification("🔊 ANÚNCIO → MÚSICA → ANÚNCIO → MÚSICA...", 4000);
             console.log("✅ SISTEMA INICIADO!");
             console.log("📋 Total de músicas:", ALL_SONGS.length);
-            console.log("🎵 Gênero principal: SAMBA");
-            console.log("🎵 LÓGICA: Anúncio → Música → Anúncio → Música...");
+            console.log("🎵 Músicas numeradas:");
+            ALL_SONGS.forEach(s => console.log(`   ${s.numero}. ${s.title} - ${s.artist} -> ${s.file}`));
             
         } catch (err) {
             console.error("Erro:", err);
@@ -716,30 +696,16 @@
     // ==================== EVENTOS ====================
     
     document.getElementById('activateBtn').addEventListener('click', startSystem);
+    document.getElementById('playPauseBtn').addEventListener('click', (e) => { e.stopPropagation(); togglePlayPause(); });
+    document.getElementById('nextBtn').addEventListener('click', (e) => { e.stopPropagation(); nextTrack(); });
+    document.getElementById('prevBtn').addEventListener('click', (e) => { e.stopPropagation(); prevTrack(); });
     
-    document.getElementById('playPauseBtn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        togglePlayPause();
-    });
-    
-    document.getElementById('nextBtn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        nextTrack();
-    });
-    
-    document.getElementById('prevBtn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        prevTrack();
-    });
-    
-    // Toque na tela
     document.addEventListener('touchstart', (e) => {
         if (isActive && !e.target.closest('.ctrl-btn') && !e.target.closest('.float-btn') && !e.target.closest('.menu-btn')) {
             togglePlayer();
         }
     });
     
-    // Toque duplo
     let lastTap = 0;
     document.addEventListener('touchstart', (e) => {
         const now = Date.now();
@@ -750,12 +716,8 @@
         lastTap = now;
     });
     
-    // Deslizar
     let touchStartX = 0;
-    document.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-    });
-    
+    document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
     document.addEventListener('touchend', (e) => {
         const diff = e.changedTouches[0].screenX - touchStartX;
         if (Math.abs(diff) > 50 && isActive && !isAdPlaying) {
@@ -764,65 +726,46 @@
         }
     });
     
-    // WhatsApp
-    function openWhatsApp() {
-        window.open('https://wa.me/5512988461978', '_blank');
-    }
+    function openWhatsApp() { window.open('https://wa.me/5512988461978', '_blank'); }
     document.getElementById('wppBtn').addEventListener('click', openWhatsApp);
     document.getElementById('menuWppBtn').addEventListener('click', openWhatsApp);
     
-    // Bluetooth
     document.getElementById('bluetoothBtn').addEventListener('click', async () => {
         showNotification("🔵 Procurando...", 2000);
         if ('bluetooth' in navigator) {
             try {
                 await navigator.bluetooth.requestDevice({ acceptAllDevices: true });
                 showNotification("✅ Conectado!", 3000);
-            } catch(error) {
-                showNotification("❌ Cancelado", 2000);
-            }
-        } else {
-            showNotification("⚠️ Use Chrome", 3000);
-        }
+            } catch(error) { showNotification("❌ Cancelado", 2000); }
+        } else { showNotification("⚠️ Use Chrome", 3000); }
     });
     
-    document.getElementById('infoBtn').addEventListener('click', () => {
-        document.getElementById('infoModal').classList.add('open');
-    });
-    
+    document.getElementById('infoBtn').addEventListener('click', () => { document.getElementById('infoModal').classList.add('open'); });
     document.getElementById('manualBtn').addEventListener('click', () => {
         document.getElementById('manualModal').classList.add('open');
         document.getElementById('menuPopup').classList.remove('open');
     });
     
     const menuPopup = document.getElementById('menuPopup');
-    document.getElementById('menuBtn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        menuPopup.classList.toggle('open');
-    });
-    
+    document.getElementById('menuBtn').addEventListener('click', (e) => { e.stopPropagation(); menuPopup.classList.toggle('open'); });
     document.addEventListener('click', (e) => {
-        if (!e.target.closest('#menuBtn') && !e.target.closest('#menuPopup')) {
-            menuPopup.classList.remove('open');
-        }
+        if (!e.target.closest('#menuBtn') && !e.target.closest('#menuPopup')) menuPopup.classList.remove('open');
     });
     
     document.getElementById('shareBtn').addEventListener('click', () => {
-        if (navigator.share) {
-            navigator.share({ title: 'Ótica São Miguel', url: window.location.href });
-        } else {
-            navigator.clipboard.writeText(window.location.href);
-            showNotification("🔗 Link copiado!", 2000);
-        }
+        if (navigator.share) { navigator.share({ title: 'Ótica São Miguel', url: window.location.href }); }
+        else { navigator.clipboard.writeText(window.location.href); showNotification("🔗 Link copiado!", 2000); }
         menuPopup.classList.remove('open');
     });
     
     const video = document.getElementById('bgVideo');
     video.play().catch(e => console.log("Aguardando interação"));
     
-    console.log("✅ SISTEMA PRONTO - LÓGICA: ANÚNCIO → MÚSICA → ANÚNCIO → MÚSICA...");
-    console.log("📋 Suas músicas (formato JSON):");
-    ALL_SONGS.forEach(s => console.log(`  - ${s.title} [${s.genero}] -> ${s.src}`));
+    console.log("✅ SISTEMA PRONTO - MÚSICAS NUMERADAS 01, 02, 03, 04");
+    console.log("🎵 01 - Michael Bublé - Haven't Met You Yet");
+    console.log("🎵 02 - Dire Straits - Sultans of Swing");
+    console.log("🎵 03 - Lenny Kravitz - It Ain't Over");
+    console.log("🎵 04 - Natiruts - Sorri Sou Rei");
 </script>
 </body>
 </html>
