@@ -211,10 +211,6 @@
             transform: scale(0.92);
         }
 
-        .float-btn span {
-            display: none;
-        }
-
         .btn-wpp { background: #25D366; }
         .btn-info { background: linear-gradient(135deg, #667eea, #764ba2); }
         .btn-bluetooth { background: #0082fc; }
@@ -550,7 +546,7 @@
         <h2>📘 Como Funciona</h2>
         <div style="text-align: left;">
             <p><strong>🔊 LÓGICA EXATA:</strong></p>
-            <p style="color: #25D366; font-weight: bold;">✅ ANÚNCIO → MÚSICA 1 → MÚSICA 2 → ANÚNCIO → MÚSICA 3 → MÚSICA 4...</p>
+            <p style="color: #25D366; font-weight: bold;">✅ ANÚNCIO → 2 MÚSICAS → ANÚNCIO → 2 MÚSICAS...</p>
             <p style="margin-top: 10px;"><strong>🎮 GESTOS:</strong><br>
             Toque na tela = mostra/esconde controles<br>
             Deslizar ← → = trocar música<br>
@@ -671,7 +667,7 @@
         }
     }
     
-    // ==================== TODAS AS 21 MÚSICAS ====================
+    // ==================== TODAS AS 26 MÚSICAS ====================
     const ALL_SONGS = [
         { title: "Billie Jean", artist: "Michael Jackson", file: "Billie_Jean_muzzik.m4a" },
         { title: "Torn", artist: "Natalie Imbruglia", file: "Torn_muzzik.m4a" },
@@ -700,7 +696,7 @@
         { title: "Resposta", artist: "Skank", file: "Skank_Resposta.m4a" }
     ];
     
-    // ==================== 2 ANÚNCIOS ====================
+    // ==================== 2 ANÚNCIOS (alterna entre eles) ====================
     const ADS = [
         { text: "📢 Ótica São Miguel! Qualidade em armações e lentes.", src: "sa.m4a" },
         { text: "📢 Promoção especial na Ótica São Miguel! Venha conferir.", src: "sa.m4a" }
@@ -909,6 +905,7 @@
         showLoading(true);
         
         try {
+            // Ativa o áudio (necessário para dispositivos móveis)
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             const ctx = new AudioContext();
             
@@ -926,21 +923,25 @@
             isActive = true;
             document.getElementById('activateBtn').style.display = 'none';
             
+            // Tenta fullscreen
             try {
                 await document.documentElement.requestFullscreen();
             } catch(e) {}
             
-            showNotification("🎬 INICIANDO: ANÚNCIO → 2 MÚSICAS → ANÚNCIO...", 4000);
+            showNotification("🎬 INICIANDO: ANÚNCIO → 2 MÚSICAS → ANÚNCIO → 2 MÚSICAS...", 4000);
             
+            // Reseta os contadores
             musicCountInCycle = 0;
             currentAdIndex = 0;
             currentMusicList = [];
             
             startVisualizer();
             
+            // Inicia o vídeo de fundo
             const video = document.getElementById('bgVideo');
             video.play().catch(e => console.log("Vídeo:", e));
             
+            // LÓGICA CORRETA: PRIMEIRO O ANÚNCIO, DEPOIS AS MÚSICAS
             setTimeout(() => {
                 playAd();
             }, 300);
@@ -1046,11 +1047,12 @@
         menuPopup.classList.remove('open');
     });
     
+    // Inicia o vídeo (silencioso, aguardando interação)
     const video = document.getElementById('bgVideo');
-    video.play().catch(e => console.log("Aguardando interação"));
+    video.play().catch(e => console.log("Aguardando interação do usuário para o vídeo"));
     
-    showNotification("🎬 Clique no botão verde para começar! Lógica: ANÚNCIO → 2 MÚSICAS → ANÚNCIO...", 5000);
-    console.log("✅ SISTEMA PRONTO");
+    showNotification("🎬 Clique no botão verde! ANÚNCIO primeiro → depois 2 músicas", 5000);
+    console.log("✅ SISTEMA PRONTO - LÓGICA: ANÚNCIO → 2 MÚSICAS → ANÚNCIO → 2 MÚSICAS...");
 </script>
 </body>
 </html>
