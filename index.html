@@ -340,7 +340,7 @@
         <h2>📘 Como Funciona</h2>
         <div style="text-align: left;">
             <p><strong>🔊 SISTEMA DE MÚSICA AMBIENTE:</strong></p>
-            <p style="color: #25D366; font-weight: bold;">✅ Todas as 25 músicas em looping aleatório</p>
+            <p style="color: #25D366; font-weight: bold;">✅ Todas as músicas em looping aleatório</p>
             <p style="margin-top: 10px;"><strong>🎮 GESTOS:</strong><br>
             Toque na tela = mostra/esconde controles<br>
             Deslizar ← → = trocar música<br>
@@ -363,15 +363,12 @@
     const audio = document.getElementById('audioPlayer');
     const playerContainer = document.getElementById('playerContainer');
     
-    // ==================== TODAS AS 25 MÚSICAS ====================
+    // ==================== SUA LISTA DE MÚSICAS CORRIGIDA ====================
     const ALL_SONGS = [
- { id: 1, title: "Michael_Bubl_Haven_t_Met_You_Yet.m4a", artist: "Michael_Bubl_Haven_t_Met_You_Yet.m4a", src: "Michael_Bubl_Haven_t_Met_You_Yet.m4a", genero: "POP" },
-  { id: 2, title: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a", artist: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a", src: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a", genero: "POP" },
-  { id: 3, title: "Lenny_Kravitz_It_Ain_t_Over_Til_It_s_Over_muzzik.m4a", artist: "Lenny_Kravitz_It_Ain_t_Over_Til_It_s_Over_muzzik.m4a", src: "Lenny_Kravitz_It_Ain_t_Over_Til_It_s_Over_muzzik.m4a", genero: "POP" },
-  { id: 4, title: "Natiruts_Sorri_Sou_Rei_muzzik.m4a", artist: "Natiruts_Sorri_Sou_Rei_muzzik.m4a", src: "Natiruts_Sorri_Sou_Rei_muzzik.m4a", genero: "POP" },
-  { id: 5, title: "", artist: "", src: "", genero: "POP" }
-]
-        
+        { id: 1, title: "Haven't Met You Yet", artist: "Michael Bublé", file: "Michael_Bubl_Haven_t_Met_You_Yet.m4a", genero: "POP" },
+        { id: 2, title: "Sultans of Swing", artist: "Dire Straits", file: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a", genero: "POP" },
+        { id: 3, title: "It Ain't Over", artist: "Lenny Kravitz", file: "Lenny_Kravitz_It_Ain_t_Over_Til_It_s_Over_muzzik.m4a", genero: "POP" },
+        { id: 4, title: "Sorri Sou Rei", artist: "Natiruts", file: "Natiruts_Sorri_Sou_Rei_muzzik.m4a", genero: "POP" }
     ];
     
     // ==================== FUNÇÕES ====================
@@ -415,15 +412,24 @@
         shuffledSongs = shuffleArray(ALL_SONGS);
         currentSongIndex = 0;
         console.log("📀 Playlist embaralhada com", shuffledSongs.length, "músicas");
-        console.log("Primeira música:", shuffledSongs[0].title);
+        if (shuffledSongs.length > 0) {
+            console.log("Primeira música:", shuffledSongs[0].title);
+        }
     }
     
     // Tocar música atual
     function playCurrentSong() {
         if (!isActive) return;
         
+        if (shuffledSongs.length === 0) {
+            console.error("❌ Nenhuma música na playlist!");
+            showNotification("⚠️ Nenhuma música encontrada!", 3000);
+            return;
+        }
+        
         const song = shuffledSongs[currentSongIndex];
         console.log(`🎵 Tocando [${currentSongIndex + 1}/${shuffledSongs.length}]: ${song.title} - ${song.artist}`);
+        showNotification(`🎵 ${song.title} - ${song.artist}`, 2500);
         
         audio.src = song.file;
         audio.load();
@@ -432,10 +438,8 @@
             audio.play().then(() => {
                 isPlaying = true;
                 document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
-                showNotification(`🎵 ${song.title} - ${song.artist}`, 2500);
             }).catch(err => {
                 console.error("Erro ao tocar:", err);
-                // Se erro, pula para próxima música
                 setTimeout(() => nextTrack(), 500);
             });
         };
@@ -443,7 +447,6 @@
         audio.onerror = (e) => {
             console.error(`❌ Erro ao carregar: ${song.file}`);
             showNotification(`⚠️ Erro: ${song.title}`, 1500);
-            // Pula para próxima música
             setTimeout(() => nextTrack(), 500);
         };
     }
@@ -542,6 +545,13 @@
                 console.log("Fullscreen não suportado");
             }
             
+            // Verifica se tem músicas
+            if (ALL_SONGS.length === 0) {
+                showNotification("⚠️ Nenhuma música cadastrada!", 3000);
+                console.error("❌ Lista de músicas vazia!");
+                return;
+            }
+            
             // Inicia a playlist
             initPlaylist();
             
@@ -554,7 +564,7 @@
                 playCurrentSong();
             }, 300);
             
-            showNotification("🎬 Sistema iniciado! Todas as 25 músicas", 3000);
+            showNotification(`🎬 Sistema iniciado! ${ALL_SONGS.length} músicas`, 3000);
             console.log("✅ SISTEMA INICIADO COM SUCESSO!");
             console.log("📋 Total de músicas:", ALL_SONGS.length);
             
@@ -689,6 +699,7 @@
     
     console.log("✅ SISTEMA PRONTO - Clique no botão verde para começar!");
     console.log("📀 Total de músicas carregadas:", ALL_SONGS.length);
+    console.log("📋 Músicas:", ALL_SONGS.map(s => s.title).join(", "));
 </script>
 </body>
 </html>
