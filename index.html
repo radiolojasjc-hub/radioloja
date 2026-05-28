@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -210,6 +209,10 @@
 
         .float-btn:active {
             transform: scale(0.92);
+        }
+
+        .float-btn span {
+            display: none;
         }
 
         .btn-wpp { background: #25D366; }
@@ -454,7 +457,7 @@
 
 <div class="app">
     <video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
-        <source src="video.mp4" type="video/mp4">
+        <source src="mid.mp4" type="video/mp4">
     </video>
     <div class="overlay"></div>
 
@@ -536,9 +539,9 @@
 
     <div class="modal" id="infoModal">
         <h2><i class="fas fa-glasses"></i> Ótica São Miguel</h2>
-        <p>👓 Armações exclusivas</p>
+        <p>👓 Armações de qualidade</p>
         <p>🔬 Lentes de precisão</p>
-        <p>⭐ Melhor atendimento da região</p>
+        <p>⭐ Atendimento especializado</p>
         <p style="margin-top: 10px;"><i class="fab fa-whatsapp"></i> (12) 98846-1978</p>
         <button onclick="closeModal('infoModal')">FECHAR</button>
     </div>
@@ -560,11 +563,6 @@
 <audio id="audioPlayer" preload="auto"></audio>
 
 <script>
-    // Fechar modal
-    window.closeModal = function(modalId) {
-        document.getElementById(modalId).classList.remove('open');
-    }
-
     // ==================== CONFIGURAÇÕES ====================
     let isActive = false;
     let isPlaying = false;
@@ -576,66 +574,12 @@
     let currentAdIndex = 0;
     let musicCountInCycle = 0;
     let currentMusicList = [];
-    let remainingMusicIndices = [];
-    let adTimeout = null; // TIMER PARA GARANTIR QUE O ANÚNCIO NÃO TRAVE
     
     const audio = document.getElementById('audioPlayer');
     const playerContainer = document.getElementById('playerContainer');
     
-    // ==================== 25 MÚSICAS DA ÓTICA SÃO MIGUEL ====================
-    const ALL_SONGS = [
-        { title: "Billie Jean", artist: "Michael Jackson", src: "Billie_Jean_muzzik.m4a" },
-        { title: "Torn", artist: "Natalie Imbruglia", src: "Torn_muzzik.m4a" },
-        { title: "Sunrise", artist: "Simply Red", src: "Sunrise_muzzik.m4a" },
-        { title: "Hips Don't Lie", artist: "Shakira", src: "Hips_Don_t_Lie_muzzik.m4a" },
-        { title: "Haven't Met You Yet", artist: "Michael Bublé", src: "Haven_t_Met_You_Yet_muzzik.m4a" },
-        { title: "It Ain't Over", artist: "Lenny Kravitz", src: "It_Ain_t_Over_Til_It_s_Over_muzzik.m4a" },
-        { title: "Down Under", artist: "Arthur Rodrigues", src: "Down_Under_muzzik.m4a" },
-        { title: "Love Come Down", artist: "Evelyn King", src: "Love_Come_Down_muzzik.m4a" },
-        { title: "Sultans of Swing", artist: "Dire Straits", src: "Sultans_of_Swing_muzzik.m4a" },
-        { title: "Destilado", artist: "Ludmilla", src: "LUDMILLA_Destilado_muzzik.m4a" },
-        { title: "Telepatia", artist: "Ferrugem", src: "Ferrugem_Telepatia_part_Thiaguinho_muzzik.m4a" },
-        { title: "Champanhe", artist: "Grupo Menos Mais", src: "Grupo_Menos_Mais_Champanhe_muzzik.m4a" },
-        { title: "Lance Livre", artist: "Kamisa 10", src: "Kamisa_10_-_Lance_Livre_NA_VIBE_DO_K10.mp3" },
-        { title: "Kiko no Pagode", artist: "Kiko", src: "KIiko_no_Pagode.m4a" },
-        { title: "Seu Brilho Sumiu", artist: "Israel & Rodolffo", src: "Israel_Rodolffo_MariFernandez_-_Seu_Brilho_Sumiu.mp3" },
-        { title: "Desbloqueado", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_-_Desbloqueado.mp3" },
-        { title: "Vontade de Prestar", artist: "Nattan", src: "Nattan_Vontade_de_Prestar_muzzik.m4a" },
-        { title: "Até Você Voltar", artist: "Marília Mendonça", src: "Mar_lia_Mendon_a_At_Voc_Voltar_muzzik.m4a" },
-        { title: "Retrovisor", artist: "Gusttavo Lima", src: "Gusttavo_Lima_Retrovisor_DVD_muzzik.m4a" },
-        { title: "Que Era Eu", artist: "Lauana Prado", src: "LAUANA_PRADO_QUE_ERA_EU_UM_DIA_DE_DOMINGO.m4a" },
-        { title: "A Tal Canção Pra Lua", artist: "Vitor Kley", src: "Vitor_Kley_Samuel_Rosa_A_Tal_Can_o_Pra_Lua_muzzik.m4a" },
-        { title: "A Namorada", artist: "Carlinhos Brown", src: "A_Namorada_A_Namorada_Carlinhos_Brown_muzzik.m4a" },
-        { title: "Sorri Sou Rei", artist: "Natiruts", src: "Natiruts_Sorri_Sou_Rei_muzzik.m4a" },
-        { title: "Na Estrada", artist: "Na Estrada", src: "Na_Estrada_Na_Estrada_muzzik.m4a" },
-        { title: "Resposta", artist: "Skank", src: "Skank_Resposta.m4a" }
-    ];
-    
-    // ==================== 2 ANÚNCIOS ====================
-    const ADS = [
-        { text: "📢 Ótica São Miguel! Qualidade em armações e lentes", src: "anuncio1.mp3" },
-        { text: "📢 Promoção especial! Visite a Ótica São Miguel", src: "anuncio2.mp3" }
-    ];
-    
-    function resetMusicPool() {
-        remainingMusicIndices = Array.from({ length: ALL_SONGS.length }, (_, i) => i);
-        // Embaralhar
-        for (let i = remainingMusicIndices.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [remainingMusicIndices[i], remainingMusicIndices[j]] = [remainingMusicIndices[j], remainingMusicIndices[i]];
-        }
-        console.log("🎵 Pool de músicas reiniciado com 25 músicas embaralhadas");
-    }
-    
-    function getRandomTwoSongs() {
-        if (remainingMusicIndices.length < 2) {
-            resetMusicPool();
-        }
-        
-        const idx1 = remainingMusicIndices.shift();
-        const idx2 = remainingMusicIndices.shift();
-        
-        return [ALL_SONGS[idx1], ALL_SONGS[idx2]];
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('open');
     }
     
     function showNotification(msg, duration = 3000) {
@@ -727,6 +671,50 @@
         }
     }
     
+    // ==================== TODAS AS 21 MÚSICAS ====================
+    const ALL_SONGS = [
+        { title: "Billie Jean", artist: "Michael Jackson", file: "Billie_Jean_muzzik.m4a" },
+        { title: "Torn", artist: "Natalie Imbruglia", file: "Torn_muzzik.m4a" },
+        { title: "Sunrise", artist: "Simply Red", file: "Sunrise_muzzik.m4a" },
+        { title: "Hips Don't Lie", artist: "Shakira", file: "Hips_Don_t_Lie_muzzik.m4a" },
+        { title: "Haven't Met You Yet", artist: "Michael Bublé", file: "Haven_t_Met_You_Yet_muzzik.m4a" },
+        { title: "It Ain't Over", artist: "Lenny Kravitz", file: "It_Ain_t_Over_Til_It_s_Over_muzzik.m4a" },
+        { title: "Down Under", artist: "Arthur Rodrigues", file: "Down_Under_muzzik.m4a" },
+        { title: "Love Come Down", artist: "Evelyn King", file: "Love_Come_Down_muzzik.m4a" },
+        { title: "Sultans of Swing", artist: "Dire Straits", file: "Sultans_of_Swing_muzzik.m4a" },
+        { title: "Destilado", artist: "Ludmilla", file: "LUDMILLA_Destilado_muzzik.m4a" },
+        { title: "Telepatia", artist: "Ferrugem", file: "Ferrugem_Telepatia_part_Thiaguinho_muzzik.m4a" },
+        { title: "Champanhe", artist: "Grupo Menos Mais", file: "Grupo_Menos_Mais_Champanhe_muzzik.m4a" },
+        { title: "Lance Livre", artist: "Kamisa 10", file: "Kamisa_10_-_Lance_Livre_NA_VIBE_DO_K10.mp3" },
+        { title: "KIiko no Pagode", artist: "KIiko", file: "KIiko_no_Pagode.m4a" },
+        { title: "Seu Brilho Sumiu", artist: "Israel & Rodolffo", file: "Israel_Rodolffo_MariFernandez_-_Seu_Brilho_Sumiu.mp3" },
+        { title: "Desbloqueado", artist: "Diego & Victor Hugo", file: "Diego_Victor_Hugo_-_Desbloqueado.mp3" },
+        { title: "Vontade de Prestar", artist: "Nattan", file: "Nattan_Vontade_de_Prestar_muzzik.m4a" },
+        { title: "Até Você Voltar", artist: "Marília Mendonça", file: "Mar_lia_Mendon_a_At_Voc_Voltar_muzzik.m4a" },
+        { title: "Retrovisor", artist: "Gusttavo Lima", file: "Gusttavo_Lima_Retrovisor_DVD_muzzik.m4a" },
+        { title: "Que Era Eu", artist: "Lauana Prado", file: "LAUANA_PRADO_QUE_ERA_EU_UM_DIA_DE_DOMINGO.m4a" },
+        { title: "A Tal Canção Pra Lua", artist: "Vitor Kley", file: "Vitor_Kley_Samuel_Rosa_A_Tal_Can_o_Pra_Lua_muzzik.m4a" },
+        { title: "A Namorada", artist: "Carlinhos Brown", file: "A_Namorada_A_Namorada_Carlinhos_Brown_muzzik.m4a" },
+        { title: "Sorri Sou Rei", artist: "Natiruts", file: "Natiruts_Sorri_Sou_Rei_muzzik.m4a" },
+        { title: "Na Estrada", artist: "Na Estrada", file: "Na_Estrada_Na_Estrada_muzzik.m4a" },
+        { title: "Resposta", artist: "Skank", file: "Skank_Resposta.m4a" }
+    ];
+    
+    // ==================== 2 ANÚNCIOS ====================
+    const ADS = [
+        { text: "📢 Ótica São Miguel! Qualidade em armações e lentes.", src: "sa.m4a" },
+        { text: "📢 Promoção especial na Ótica São Miguel! Venha conferir.", src: "sa.m4a" }
+    ];
+    
+    function getRandomTwoSongs() {
+        const shuffled = [...ALL_SONGS];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return [shuffled[0], shuffled[1]];
+    }
+    
     function playNextMusicInCycle() {
         if (!isActive || isAdPlaying) return;
         
@@ -737,13 +725,13 @@
         }
         
         const song = currentMusicList[musicCountInCycle];
-        document.getElementById('trackName').textContent = `${song.title} - ${song.artist}`;
+        document.getElementById('trackName').textContent = song.title;
         document.getElementById('trackArtist').textContent = `🎧 Música ${musicCountInCycle + 1} de 2 • Tocando agora`;
         
-        audio.src = song.src;
+        audio.src = song.file;
         audio.load();
         
-        const tryPlay = () => {
+        audio.oncanplaythrough = () => {
             audio.play().then(() => {
                 isPlaying = true;
                 isAdPlaying = false;
@@ -754,11 +742,10 @@
                 console.log(`🎵 TOCANDO MÚSICA ${musicCountInCycle + 1}/2: ${song.title}`);
             }).catch(err => {
                 console.log("Erro ao tocar música:", err);
-                setTimeout(tryPlay, 500);
+                setTimeout(() => playNextMusicInCycle(), 500);
             });
         };
         
-        audio.oncanplaythrough = tryPlay;
         audio.onerror = () => {
             console.log("Erro no arquivo de música, tentando próxima...");
             musicCountInCycle++;
@@ -766,33 +753,8 @@
         };
     }
     
-    function finalizarAnuncio() {
-        // Limpar qualquer timeout pendente
-        if (adTimeout) {
-            clearTimeout(adTimeout);
-            adTimeout = null;
-        }
-        
-        console.log("✅ ANÚNCIO FINALIZADO! Voltando para as músicas...");
-        isAdPlaying = false;
-        isPlaying = false;
-        document.getElementById('adToast').classList.remove('show');
-        
-        // Resetar o ciclo para tocar 2 músicas
-        musicCountInCycle = 0;
-        currentMusicList = getRandomTwoSongs();
-        playNextMusicInCycle();
-        updateStatus();
-    }
-    
     function playAd() {
         if (!isActive) return;
-        
-        // Limpar qualquer anúncio anterior
-        if (adTimeout) {
-            clearTimeout(adTimeout);
-            adTimeout = null;
-        }
         
         isAdPlaying = true;
         isPlaying = false;
@@ -812,18 +774,9 @@
         
         document.getElementById('trackName').textContent = "📢 ANÚNCIO - Ótica São Miguel";
         document.getElementById('trackArtist').textContent = ad.text;
-        document.getElementById('progressFill').style.width = '0%';
         
         audio.src = ad.src;
         audio.load();
-        
-        // TIMER DE SEGURANÇA - Força finalização após 10 segundos (evita travamento)
-        adTimeout = setTimeout(() => {
-            if (isAdPlaying) {
-                console.log("⏰ TIMER DE SEGURANÇA: Anúncio demorou muito, finalizando...");
-                finalizarAnuncio();
-            }
-        }, 10000);
         
         audio.oncanplaythrough = () => {
             audio.play().catch(err => {
@@ -833,7 +786,6 @@
         };
         
         audio.onended = () => {
-            console.log("📢 Anúncio terminou naturalmente");
             finalizarAnuncio();
         };
         
@@ -843,8 +795,32 @@
         };
     }
     
-    // IMPORTANTE: Remover o onended genérico para não conflitar
-    // O controle agora é feito pelo playAd e finalizarAnuncio
+    function finalizarAnuncio() {
+        console.log("✅ ANÚNCIO FINALIZADO! Voltando para as músicas...");
+        isAdPlaying = false;
+        document.getElementById('adToast').classList.remove('show');
+        musicCountInCycle = 0;
+        currentMusicList = getRandomTwoSongs();
+        playNextMusicInCycle();
+        updateStatus();
+    }
+    
+    audio.onended = () => {
+        if (isAdPlaying) return;
+        
+        if (isActive && isPlaying) {
+            musicCountInCycle++;
+            console.log(`🎵 Música finalizada. musicCountInCycle = ${musicCountInCycle}`);
+            
+            if (musicCountInCycle >= 2) {
+                console.log("🔁 2 MÚSICAS TOCADAS! INICIANDO ANÚNCIO...");
+                playAd();
+            } else {
+                console.log("🎵 Tocando PRÓXIMA música do ciclo...");
+                playNextMusicInCycle();
+            }
+        }
+    };
     
     function pauseMusic() {
         if (audio.src && !audio.paused) {
@@ -889,12 +865,18 @@
         if (!isActive || isAdPlaying || isLoading) return;
         
         if (isPlaying) {
-            audio.pause();
-            if (musicCountInCycle < 1) {
-                musicCountInCycle++;
-                playNextMusicInCycle();
-            } else {
-                playAd();
+            if (audio.src) {
+                audio.pause();
+                if (musicCountInCycle < 2) {
+                    musicCountInCycle++;
+                    if (musicCountInCycle >= 2) {
+                        playAd();
+                    } else {
+                        playNextMusicInCycle();
+                    }
+                } else {
+                    playAd();
+                }
             }
         }
     }
@@ -927,9 +909,17 @@
         showLoading(true);
         
         try {
-            // Ativar áudio
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             const ctx = new AudioContext();
+            
+            const oscillator = ctx.createOscillator();
+            const gain = ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(ctx.destination);
+            gain.gain.value = 0;
+            oscillator.start();
+            oscillator.stop(ctx.currentTime + 0.1);
+            
             await ctx.resume();
             setTimeout(() => ctx.close(), 200);
             
@@ -945,7 +935,6 @@
             musicCountInCycle = 0;
             currentAdIndex = 0;
             currentMusicList = [];
-            resetMusicPool();
             
             startVisualizer();
             
@@ -1060,9 +1049,8 @@
     const video = document.getElementById('bgVideo');
     video.play().catch(e => console.log("Aguardando interação"));
     
-    resetMusicPool();
     showNotification("🎬 Clique no botão verde para começar! Lógica: ANÚNCIO → 2 MÚSICAS → ANÚNCIO...", 5000);
-    console.log("✅ SISTEMA PRONTO - 25 MÚSICAS disponíveis");
+    console.log("✅ SISTEMA PRONTO");
 </script>
 </body>
 </html>
