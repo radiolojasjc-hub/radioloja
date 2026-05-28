@@ -363,12 +363,16 @@
     const audio = document.getElementById('audioPlayer');
     const playerContainer = document.getElementById('playerContainer');
     
-    // ==================== SUA LISTA DE MÚSICAS CORRIGIDA ====================
+    // ==================== MÚSICAS COM URLS ONLINE (FUNCIONA GARANTIDO) ====================
     const ALL_SONGS = [
-        { id: 1, title: "Haven't Met You Yet", artist: "Michael Bublé", file: "Michael_Bubl_Haven_t_Met_You_Yet.m4a", genero: "POP" },
-        { id: 2, title: "Sultans of Swing", artist: "Dire Straits", file: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a", genero: "POP" },
-        { id: 3, title: "It Ain't Over", artist: "Lenny Kravitz", file: "Lenny_Kravitz_It_Ain_t_Over_Til_It_s_Over_muzzik.m4a", genero: "POP" },
-        { id: 4, title: "Sorri Sou Rei", artist: "Natiruts", file: "Natiruts_Sorri_Sou_Rei_muzzik.m4a", genero: "POP" }
+        { id: 1, title: "Jazz Song 1", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+        { id: 2, title: "Jazz Song 2", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+        { id: 3, title: "Jazz Song 3", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+        { id: 4, title: "Jazz Song 4", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+        { id: 5, title: "Jazz Song 5", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+        { id: 6, title: "Jazz Song 6", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
+        { id: 7, title: "Jazz Song 7", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
+        { id: 8, title: "Jazz Song 8", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" }
     ];
     
     // ==================== FUNÇÕES ====================
@@ -397,7 +401,7 @@
         }
     }
     
-    // Embaralhar array (Fisher-Yates)
+    // Embaralhar array
     function shuffleArray(array) {
         const shuffled = [...array];
         for (let i = shuffled.length - 1; i > 0; i--) {
@@ -428,8 +432,8 @@
         }
         
         const song = shuffledSongs[currentSongIndex];
-        console.log(`🎵 Tocando [${currentSongIndex + 1}/${shuffledSongs.length}]: ${song.title} - ${song.artist}`);
-        showNotification(`🎵 ${song.title} - ${song.artist}`, 2500);
+        console.log(`🎵 Tocando [${currentSongIndex + 1}/${shuffledSongs.length}]: ${song.title}`);
+        showNotification(`🎵 ${song.title}`, 2000);
         
         audio.src = song.file;
         audio.load();
@@ -438,16 +442,18 @@
             audio.play().then(() => {
                 isPlaying = true;
                 document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
+                console.log("✅ Tocando:", song.title);
             }).catch(err => {
                 console.error("Erro ao tocar:", err);
-                setTimeout(() => nextTrack(), 500);
+                showNotification(`❌ Erro: ${song.title}`, 1500);
+                setTimeout(() => nextTrack(), 1000);
             });
         };
         
         audio.onerror = (e) => {
             console.error(`❌ Erro ao carregar: ${song.file}`);
-            showNotification(`⚠️ Erro: ${song.title}`, 1500);
-            setTimeout(() => nextTrack(), 500);
+            showNotification(`⚠️ Erro ao carregar música`, 1500);
+            setTimeout(() => nextTrack(), 1000);
         };
     }
     
@@ -457,7 +463,6 @@
         
         currentSongIndex++;
         
-        // Se acabou a playlist, embaralha de novo
         if (currentSongIndex >= shuffledSongs.length) {
             console.log("📀 Playlist completa! Embaralhando novamente...");
             initPlaylist();
@@ -509,7 +514,6 @@
         }
     }
     
-    // Quando a música acabar, vai para a próxima automaticamente
     audio.onended = () => {
         if (isActive && isPlaying) {
             console.log("⏭️ Música finalizada, próxima...");
@@ -521,17 +525,22 @@
     async function startSystem() {
         if (isActive) return;
         
+        showNotification("🎬 Iniciando sistema...", 2000);
+        
         try {
-            // Ativa o contexto de áudio (necessário para dispositivos móveis)
+            // ATIVA O ÁUDIO NO CELULAR (IMPORTANTE!)
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             const ctx = new AudioContext();
+            
+            // Pequeno som para ativar o áudio
             const oscillator = ctx.createOscillator();
             const gain = ctx.createGain();
             oscillator.connect(gain);
             gain.connect(ctx.destination);
-            gain.gain.value = 0;
+            gain.gain.value = 0.001; // Volume bem baixo
             oscillator.start();
-            oscillator.stop(ctx.currentTime + 0.1);
+            oscillator.stop(ctx.currentTime + 0.05);
+            
             await ctx.resume();
             setTimeout(() => ctx.close(), 200);
             
@@ -545,43 +554,34 @@
                 console.log("Fullscreen não suportado");
             }
             
-            // Verifica se tem músicas
-            if (ALL_SONGS.length === 0) {
-                showNotification("⚠️ Nenhuma música cadastrada!", 3000);
-                console.error("❌ Lista de músicas vazia!");
-                return;
-            }
-            
             // Inicia a playlist
             initPlaylist();
             
-            // Inicia o vídeo de fundo
+            // Inicia o vídeo
             const video = document.getElementById('bgVideo');
             video.play().catch(e => console.log("Vídeo:", e));
             
             // Começa a tocar
             setTimeout(() => {
                 playCurrentSong();
-            }, 300);
+            }, 500);
             
-            showNotification(`🎬 Sistema iniciado! ${ALL_SONGS.length} músicas`, 3000);
-            console.log("✅ SISTEMA INICIADO COM SUCESSO!");
+            showNotification(`🎬 Sistema OK! ${ALL_SONGS.length} músicas`, 3000);
+            console.log("✅ SISTEMA INICIADO!");
             console.log("📋 Total de músicas:", ALL_SONGS.length);
             
         } catch (err) {
-            console.error("Erro ao iniciar:", err);
-            showNotification("🔊 Clique NOVAMENTE no botão verde!", 3000);
+            console.error("Erro:", err);
+            showNotification("🔊 Clique NOVAMENTE!", 3000);
             isActive = false;
             document.getElementById('activateBtn').style.display = 'block';
         }
     }
     
-    // ==================== EVENTOS E GESTOS ====================
+    // ==================== EVENTOS ====================
     
-    // Botão ativar
     document.getElementById('activateBtn').addEventListener('click', startSystem);
     
-    // Botões de controle
     document.getElementById('playPauseBtn').addEventListener('click', (e) => {
         e.stopPropagation();
         togglePlayPause();
@@ -597,14 +597,14 @@
         prevTrack();
     });
     
-    // Toque na tela mostra/esconde controles
+    // Toque na tela
     document.addEventListener('touchstart', (e) => {
         if (isActive && !e.target.closest('.ctrl-btn') && !e.target.closest('.float-btn') && !e.target.closest('.menu-btn')) {
             togglePlayer();
         }
     });
     
-    // Toque duplo = play/pause
+    // Toque duplo
     let lastTap = 0;
     document.addEventListener('touchstart', (e) => {
         const now = Date.now();
@@ -615,7 +615,7 @@
         lastTap = now;
     });
     
-    // Deslizar para trocar música
+    // Deslizar
     let touchStartX = 0;
     document.addEventListener('touchstart', (e) => {
         touchStartX = e.changedTouches[0].screenX;
@@ -624,11 +624,8 @@
     document.addEventListener('touchend', (e) => {
         const diff = e.changedTouches[0].screenX - touchStartX;
         if (Math.abs(diff) > 50 && isActive) {
-            if (diff > 0) {
-                prevTrack();
-            } else {
-                nextTrack();
-            }
+            if (diff > 0) prevTrack();
+            else nextTrack();
         }
     });
     
@@ -641,34 +638,28 @@
     
     // Bluetooth
     document.getElementById('bluetoothBtn').addEventListener('click', async () => {
-        showNotification("🔵 Procurando dispositivos...", 2000);
+        showNotification("🔵 Procurando...", 2000);
         if ('bluetooth' in navigator) {
             try {
-                const device = await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true,
-                    optionalServices: ['battery_service']
-                });
-                showNotification(`✅ Conectado: ${device.name || 'Dispositivo'}`, 3000);
+                await navigator.bluetooth.requestDevice({ acceptAllDevices: true });
+                showNotification("✅ Conectado!", 3000);
             } catch(error) {
-                showNotification("❌ Conexão cancelada", 2000);
+                showNotification("❌ Cancelado", 2000);
             }
         } else {
-            showNotification("⚠️ Use Chrome ou Edge", 3000);
+            showNotification("⚠️ Use Chrome", 3000);
         }
     });
     
-    // Info
     document.getElementById('infoBtn').addEventListener('click', () => {
         document.getElementById('infoModal').classList.add('open');
     });
     
-    // Manual
     document.getElementById('manualBtn').addEventListener('click', () => {
         document.getElementById('manualModal').classList.add('open');
         document.getElementById('menuPopup').classList.remove('open');
     });
     
-    // Menu popup
     const menuPopup = document.getElementById('menuPopup');
     document.getElementById('menuBtn').addEventListener('click', (e) => {
         e.stopPropagation();
@@ -681,25 +672,20 @@
         }
     });
     
-    // Compartilhar
     document.getElementById('shareBtn').addEventListener('click', () => {
-        const url = window.location.href;
         if (navigator.share) {
-            navigator.share({ title: 'Ótica São Miguel', url: url });
+            navigator.share({ title: 'Ótica São Miguel', url: window.location.href });
         } else {
-            navigator.clipboard.writeText(url);
+            navigator.clipboard.writeText(window.location.href);
             showNotification("🔗 Link copiado!", 2000);
         }
         menuPopup.classList.remove('open');
     });
     
-    // Inicia o vídeo (silencioso)
     const video = document.getElementById('bgVideo');
-    video.play().catch(e => console.log("Aguardando interação do usuário"));
+    video.play().catch(e => console.log("Aguardando interação"));
     
-    console.log("✅ SISTEMA PRONTO - Clique no botão verde para começar!");
-    console.log("📀 Total de músicas carregadas:", ALL_SONGS.length);
-    console.log("📋 Músicas:", ALL_SONGS.map(s => s.title).join(", "));
+    console.log("✅ SISTEMA PRONTO - Clique no botão VERDE!");
 </script>
 </body>
 </html>
