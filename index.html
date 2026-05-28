@@ -22,7 +22,6 @@
             background: #000;
         }
 
-        /* VIDEO BACKGROUND */
         .bg-video {
             position: fixed;
             top: 0;
@@ -43,7 +42,6 @@
             z-index: 1;
         }
 
-        /* BOTÃO ATIVAR (aparece só no início) */
         .activate-btn {
             position: fixed;
             top: 50%;
@@ -69,7 +67,6 @@
             50% { transform: translate(-50%, -50%) scale(1.05); }
         }
 
-        /* PLAYER FLUTUANTE */
         .player {
             position: fixed;
             bottom: 20px;
@@ -187,7 +184,6 @@
             font-size: 1.3rem;
         }
 
-        /* BOTÕES FLUTUANTES */
         .float-buttons {
             position: fixed;
             right: 15px;
@@ -221,7 +217,6 @@
         .btn-wpp { background: #25D366; }
         .btn-info { background: linear-gradient(135deg, #00f3ff, #ff2d7f); }
 
-        /* MENU */
         .menu-btn {
             position: fixed;
             top: 15px;
@@ -279,7 +274,6 @@
             color: #000;
         }
 
-        /* MODAIS */
         .modal {
             position: fixed;
             top: 50%;
@@ -355,12 +349,10 @@
 </video>
 <div class="overlay"></div>
 
-<!-- BOTÃO ATIVAR -->
 <button class="activate-btn" id="activateBtn">
     <i class="fas fa-headphones"></i> ATIVAR SISTEMA
 </button>
 
-<!-- PLAYER -->
 <div class="player hide" id="player">
     <div class="player-header">
         <span class="logo"><i class="fas fa-glasses"></i> Ótica São Miguel</span>
@@ -386,7 +378,6 @@
     </div>
 </div>
 
-<!-- BOTÕES FLUTUANTES -->
 <div class="float-buttons">
     <button class="float-btn btn-bluetooth" id="bluetoothBtn"><i class="fab fa-bluetooth-b"></i></button>
     <button class="float-btn btn-fullscreen" id="fullscreenBtn"><i class="fas fa-expand"></i></button>
@@ -394,7 +385,6 @@
     <button class="float-btn btn-info" id="infoBtn"><i class="fas fa-info"></i></button>
 </div>
 
-<!-- MENU -->
 <div class="menu-btn" id="menuBtn">
     <i class="fas fa-ellipsis-v"></i>
 </div>
@@ -406,7 +396,6 @@
     <button id="menuWppBtn"><i class="fab fa-whatsapp"></i> Falar com Ótica</button>
 </div>
 
-<!-- MODAIS -->
 <div class="modal" id="infoModal">
     <h2><i class="fas fa-glasses"></i> Ótica São Miguel</h2>
     <p>👓 Armações de qualidade</p>
@@ -475,7 +464,6 @@
     let tocando = false;
     let anuncioAtivo = false;
     let historico = [];
-    let musicaAtual = 0;
     let intervaloProgresso = null;
     let timeoutAnuncio = null;
 
@@ -491,7 +479,7 @@
     }
 
     function formatarTempo(seg) {
-        if (isNaN(seg)) return "0:00";
+        if (isNaN(seg) || !isFinite(seg)) return "0:00";
         const m = Math.floor(seg / 60);
         const s = Math.floor(seg % 60);
         return `${m}:${s < 10 ? '0' : ''}${s}`;
@@ -525,7 +513,7 @@
         }, 200);
     }
 
-    // ==================== LÓGICA PRINCIPAL ====================
+    // ==================== LÓGICA PRINCIPAL CORRIGIDA ====================
     function getProximaMusica() {
         const disponiveis = MUSICAS.filter(m => !historico.includes(m.title));
         
@@ -552,20 +540,24 @@
         document.getElementById('trackName').textContent = musica.title;
         document.getElementById('trackArtist').textContent = `🎧 ${musica.artist}`;
         
+        // Para áudio anterior
+        audio.pause();
+        audio.currentTime = 0;
+        
         audio.src = musica.file;
         audio.load();
         
-        console.log(`🎵 Tocando: ${musica.title}`);
+        console.log(`🎵 Tocando música: ${musica.title}`);
         
-        const timeout = setTimeout(() => {
+        const timeoutMusica = setTimeout(() => {
             if (!tocando) {
-                console.log(`⚠️ Timeout: ${musica.title}`);
+                console.log(`⚠️ Timeout música: ${musica.title}`);
                 tocarMusica();
             }
-        }, 5000);
+        }, 8000);
         
-        audio.oncanplay = () => {
-            clearTimeout(timeout);
+        audio.oncanplaythrough = () => {
+            clearTimeout(timeoutMusica);
             audio.play()
                 .then(() => {
                     tocando = true;
@@ -573,6 +565,7 @@
                     document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
                     iniciarProgresso();
                     atualizarStatus();
+                    console.log(`✅ Tocando: ${musica.title}`);
                 })
                 .catch(err => {
                     console.log(`Erro: ${err}`);
@@ -581,8 +574,8 @@
         };
         
         audio.onerror = () => {
-            clearTimeout(timeout);
-            console.log(`❌ Erro no arquivo: ${musica.file}`);
+            clearTimeout(timeoutMusica);
+            console.log(`❌ Arquivo não encontrado: ${musica.file}`);
             setTimeout(() => tocarMusica(), 500);
         };
     }
@@ -590,48 +583,84 @@
     function tocarAnuncio() {
         if (!ativo) return;
         
+        // Limpa timeout anterior
+        if (timeoutAnuncio) clearTimeout(timeoutAnuncio);
+        
         anuncioAtivo = true;
         tocando = false;
         pararProgresso();
         
-        console.log(`📢 TOCANDO ANÚNCIO: sa.m4a`);
+        console.log(`📢 INICIANDO ANÚNCIO: sa.m4a`);
         
         document.getElementById('trackName').textContent = "📢 ANÚNCIO - Ótica São Miguel";
         document.getElementById('trackArtist').textContent = "Promoção especial em armações e lentes!";
         atualizarStatus();
         
+        // Para áudio anterior
+        audio.pause();
+        audio.currentTime = 0;
+        
         audio.src = "sa.m4a";
         audio.load();
         
+        // Timeout de segurança de 30 segundos (anúncio completo)
         timeoutAnuncio = setTimeout(() => {
-            console.log("⏰ Timeout do anúncio");
-            finalizarAnuncio();
-        }, 10000);
+            console.log("⚠️ Timeout de segurança do anúncio (30s)");
+            if (anuncioAtivo) {
+                finalizarAnuncio();
+            }
+        }, 30000);
         
-        audio.oncanplay = () => {
-            audio.play().catch(() => finalizarAnuncio());
+        audio.oncanplaythrough = () => {
+            console.log("📢 Anúncio carregado, reproduzindo...");
+            audio.play()
+                .then(() => {
+                    console.log("📢 Anúncio começou a tocar");
+                })
+                .catch(err => {
+                    console.error("Erro ao tocar anúncio:", err);
+                    finalizarAnuncio();
+                });
         };
         
+        // QUANDO O ANÚNCIO TERMINAR NATURALMENTE (NÃO CORTA!)
         audio.onended = () => {
+            console.log("📢 ANÚNCIO TERMINOU COMPLETAMENTE!");
             finalizarAnuncio();
         };
         
-        audio.onerror = () => {
-            console.log("❌ Erro no anúncio");
+        audio.onerror = (e) => {
+            console.error("❌ Erro no arquivo do anúncio:", e);
             finalizarAnuncio();
         };
     }
     
     function finalizarAnuncio() {
-        if (timeoutAnuncio) clearTimeout(timeoutAnuncio);
-        console.log("✅ Anúncio finalizado → próxima música");
+        // Limpa timeout
+        if (timeoutAnuncio) {
+            clearTimeout(timeoutAnuncio);
+            timeoutAnuncio = null;
+        }
+        
+        // Só finaliza se ainda estiver em anúncio
+        if (!anuncioAtivo) return;
+        
+        console.log("✅ ANÚNCIO FINALIZADO! Tocando próxima música...");
         anuncioAtivo = false;
-        tocarMusica();
+        
+        // Delay para transição suave
+        setTimeout(() => {
+            tocarMusica();
+        }, 500);
     }
 
+    // Evento de fim de áudio (só chama se for música)
     audio.onended = () => {
+        console.log(`🎵 Evento onended - anuncioAtivo: ${anuncioAtivo}, tocando: ${tocando}`);
+        
+        // Só troca para anúncio se for uma música que terminou
         if (!anuncioAtivo && ativo && tocando) {
-            console.log("🎵 Música acabou → anúncio");
+            console.log("🎵 Música acabou naturalmente → iniciando anúncio");
             tocarAnuncio();
         }
     };
@@ -659,7 +688,7 @@
         if (tocando) {
             pausar();
         } else {
-            if (audio.src) {
+            if (audio.src && audio.src !== "") {
                 audio.play().then(() => {
                     tocando = true;
                     document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
@@ -679,7 +708,9 @@
         }
     }
 
-    function anterior() { proxima(); }
+    function anterior() { 
+        proxima(); 
+    }
 
     function togglePlayer() {
         player.classList.toggle('hide');
@@ -711,7 +742,8 @@
             document.documentElement.requestFullscreen().catch(() => {});
             
             // Vídeo
-            document.getElementById('bgVideo').play().catch(() => {});
+            const video = document.getElementById('bgVideo');
+            video.play().catch(() => console.log("Vídeo aguardando"));
             
             showMsg("✅ SISTEMA ATIVADO! Iniciando anúncio...", 3000);
             
@@ -834,7 +866,7 @@
     
     // Inicialização
     showMsg("🎬 Clique no botão ATIVAR SISTEMA", 4000);
-    console.log("✅ SISTEMA PRONTO - 25 MÚSICAS | LÓGICA: ANÚNCIO → MÚSICA");
+    console.log("✅ SISTEMA PRONTO - 25 MÚSICAS | ANÚNCIO COMPLETO");
 </script>
 </body>
 </html>
