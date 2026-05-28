@@ -303,12 +303,34 @@
             display: flex;
         }
 
+        .now-playing {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 6px 14px;
+            border-radius: 30px;
+            color: white;
+            font-size: 0.7rem;
+            z-index: 15;
+            pointer-events: none;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .now-playing i {
+            color: #25D366;
+            margin-right: 6px;
+        }
+
         @media (max-width: 600px) {
             .control-buttons { gap: 20px; }
             .ctrl-btn { width: 45px; height: 45px; }
             .play-btn { width: 55px; height: 55px; }
             .activate-btn { padding: 15px 30px; font-size: 1rem; }
             .ad-toast { font-size: 0.7rem; white-space: normal; width: 80%; text-align: center; }
+            .now-playing { font-size: 0.6rem; max-width: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         }
     </style>
 </head>
@@ -319,6 +341,10 @@
         <source src="mid.mp4" type="video/mp4">
     </video>
     <div class="overlay"></div>
+
+    <div class="now-playing" id="nowPlaying">
+        <i class="fas fa-music"></i> <span id="nowPlayingText">Sistema pronto</span>
+    </div>
 
     <div class="player-container hide" id="playerContainer">
         <div class="control-buttons">
@@ -393,13 +419,14 @@
     
     const audio = document.getElementById('audioPlayer');
     const playerContainer = document.getElementById('playerContainer');
+    const nowPlayingSpan = document.getElementById('nowPlayingText');
     
-    // ==================== SUAS MÚSICAS ====================
+    // ==================== SUAS MÚSICAS (FORMATO JSON) ====================
     const ALL_SONGS = [
-        { title: "Haven't Met You Yet", artist: "Michael Bublé", file: "Michael_Bubl_Haven_t_Met_You_Yet.m4a" },
-        { title: "Sultans of Swing", artist: "Dire Straits", file: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a" },
-        { title: "It Ain't Over", artist: "Lenny Kravitz", file: "Lenny_Kravitz_It_Ain_t_Over_Til_It_s_Over_muzzik.m4a" },
-        { title: "Sorri Sou Rei", artist: "Natiruts", file: "Natiruts_Sorri_Sou_Rei_muzzik.m4a" }
+        { id: 1, title: "Thiago Martins - Onde Deus Possa Me Ouvir", src: "Thiago_Martins_Onde_Deus_Possa_Me_Ouvir_Esperando_Avi_es_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
+        { id: 2, title: "Thiago Martins - Esperando Avisos", src: "Thiago_Martins_Onde_Deus_Possa_Me_Ouvir_Esperando_Avi_es_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
+        { id: 3, title: "Outra Música - Exemplo 1", src: "exemplo1.m4a", genero: "SAMBA", tipo: "normal" },
+        { id: 4, title: "Outra Música - Exemplo 2", src: "exemplo2.m4a", genero: "SAMBA", tipo: "normal" }
     ];
     
     // ==================== ANÚNCIOS ====================
@@ -409,6 +436,10 @@
     ];
     
     // ==================== FUNÇÕES ====================
+    
+    function updateNowPlaying(text) {
+        nowPlayingSpan.innerText = text;
+    }
     
     function closeModal(modalId) {
         document.getElementById(modalId).classList.remove('open');
@@ -449,6 +480,9 @@
         shuffledSongs = shuffleArray(ALL_SONGS);
         currentSongIndex = 0;
         console.log("📀 Playlist embaralhada com", shuffledSongs.length, "músicas");
+        shuffledSongs.forEach((song, idx) => {
+            console.log(`  ${idx+1}. ${song.title} [${song.genero}] - ${song.src}`);
+        });
     }
     
     // Tocar música
@@ -460,10 +494,11 @@
         }
         
         const song = shuffledSongs[currentSongIndex];
-        console.log(`🎵 Tocando música: ${song.title}`);
-        showNotification(`🎵 ${song.title} - ${song.artist}`, 2500);
+        console.log(`🎵 Tocando música: ${song.title} (${song.genero})`);
+        updateNowPlaying(`${song.title} • ${song.genero}`);
+        showNotification(`🎵 ${song.title} [${song.genero}]`, 2500);
         
-        audio.src = song.file;
+        audio.src = song.src;
         audio.load();
         
         audio.oncanplaythrough = () => {
@@ -473,13 +508,13 @@
                 document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
                 console.log("✅ Música tocando...");
             }).catch(err => {
-                console.log("Erro:", err);
+                console.log("Erro ao tocar música:", err);
                 setTimeout(() => playMusic(), 500);
             });
         };
         
         audio.onerror = () => {
-            console.log(`❌ Erro: ${song.file} não encontrado`);
+            console.log(`❌ Arquivo não encontrado: ${song.src}`);
             showNotification(`⚠️ Arquivo não encontrado: ${song.title}`, 2000);
             nextTrack();
         };
@@ -491,6 +526,7 @@
         
         isAdPlaying = true;
         isPlaying = false;
+        updateNowPlaying("📢 ANÚNCIO - Ótica São Miguel");
         
         const ad = ADS[currentAdIndex % ADS.length];
         currentAdIndex++;
@@ -501,7 +537,7 @@
         adToastText.innerHTML = `<i class="fas fa-bullhorn"></i> ${ad.text}`;
         adToast.classList.add('show');
         
-        console.log(`📢 TOCANDO ANÚNCIO: ${ad.text}`);
+        console.log(`📢 TOCANDO ANÚNCIO: ${ad.text} (${ad.src})`);
         showNotification(ad.text, 4000);
         
         audio.src = ad.src;
@@ -605,11 +641,14 @@
         
         if (isPlaying) {
             pauseMusic();
+            updateNowPlaying("⏸ Pausado");
         } else {
             if (audio.src && audio.src !== "") {
                 audio.play().then(() => {
                     isPlaying = true;
                     document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
+                    const currentSong = shuffledSongs[currentSongIndex];
+                    if (currentSong) updateNowPlaying(`${currentSong.title} • ${currentSong.genero}`);
                 }).catch(() => {
                     playMusic();
                 });
@@ -663,6 +702,7 @@
             showNotification("🔊 ANÚNCIO → MÚSICA → ANÚNCIO → MÚSICA...", 4000);
             console.log("✅ SISTEMA INICIADO!");
             console.log("📋 Total de músicas:", ALL_SONGS.length);
+            console.log("🎵 Gênero principal: SAMBA");
             console.log("🎵 LÓGICA: Anúncio → Música → Anúncio → Música...");
             
         } catch (err) {
@@ -781,7 +821,8 @@
     video.play().catch(e => console.log("Aguardando interação"));
     
     console.log("✅ SISTEMA PRONTO - LÓGICA: ANÚNCIO → MÚSICA → ANÚNCIO → MÚSICA...");
-    console.log("📋 Suas músicas:", ALL_SONGS.map(s => s.title));
+    console.log("📋 Suas músicas (formato JSON):");
+    ALL_SONGS.forEach(s => console.log(`  - ${s.title} [${s.genero}] -> ${s.src}`));
 </script>
 </body>
 </html>
