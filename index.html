@@ -280,6 +280,29 @@
             opacity: 1;
         }
 
+        .ad-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #25D366, #667eea);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 60px;
+            z-index: 150;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .ad-toast.show {
+            display: flex;
+        }
+
         @media (max-width: 600px) {
             .control-buttons { gap: 20px; }
             .ctrl-btn { width: 45px; height: 45px; }
@@ -327,6 +350,11 @@
         <span id="notificationMsg"></span>
     </div>
 
+    <div class="ad-toast" id="adToast">
+        <i class="fas fa-bullhorn"></i>
+        <span id="adToastText">📢 ANÚNCIO - Ótica São Miguel</span>
+    </div>
+
     <div class="modal" id="infoModal">
         <h2><i class="fas fa-glasses"></i> Ótica São Miguel</h2>
         <p>👓 Armações de qualidade</p>
@@ -339,8 +367,8 @@
     <div class="modal" id="manualModal">
         <h2>📘 Como Funciona</h2>
         <div style="text-align: left;">
-            <p><strong>🔊 SISTEMA DE MÚSICA AMBIENTE:</strong></p>
-            <p style="color: #25D366; font-weight: bold;">✅ Todas as músicas em looping aleatório</p>
+            <p><strong>🔊 LÓGICA EXATA:</strong></p>
+            <p style="color: #25D366; font-weight: bold;">✅ ANÚNCIO → 2 MÚSICAS → ANÚNCIO → 2 MÚSICAS...</p>
             <p style="margin-top: 10px;"><strong>🎮 GESTOS:</strong><br>
             Toque na tela = mostra/esconde controles<br>
             Deslizar ← → = trocar música<br>
@@ -356,23 +384,27 @@
     // ==================== CONFIGURAÇÕES ====================
     let isActive = false;
     let isPlaying = false;
+    let isAdPlaying = false;
     let autoHideTimer = null;
-    let currentSongIndex = 0;
-    let shuffledSongs = [];
+    let currentAdIndex = 0;
+    let musicCountInCycle = 0;
+    let currentMusicList = [];
     
     const audio = document.getElementById('audioPlayer');
     const playerContainer = document.getElementById('playerContainer');
     
-    // ==================== MÚSICAS COM URLS ONLINE (FUNCIONA GARANTIDO) ====================
+    // ==================== SUAS MÚSICAS ====================
     const ALL_SONGS = [
-        { id: 1, title: "Jazz Song 1", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-        { id: 2, title: "Jazz Song 2", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-        { id: 3, title: "Jazz Song 3", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-        { id: 4, title: "Jazz Song 4", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-        { id: 5, title: "Jazz Song 5", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
-        { id: 6, title: "Jazz Song 6", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
-        { id: 7, title: "Jazz Song 7", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
-        { id: 8, title: "Jazz Song 8", artist: "SoundHelix", file: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" }
+        { title: "Haven't Met You Yet", artist: "Michael Bublé", file: "Michael_Bubl_Haven_t_Met_You_Yet.m4a" },
+        { title: "Sultans of Swing", artist: "Dire Straits", file: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a" },
+        { title: "It Ain't Over", artist: "Lenny Kravitz", file: "Lenny_Kravitz_It_Ain_t_Over_Til_It_s_Over_muzzik.m4a" },
+        { title: "Sorri Sou Rei", artist: "Natiruts", file: "Natiruts_Sorri_Sou_Rei_muzzik.m4a" }
+    ];
+    
+    // ==================== ANÚNCIOS ====================
+    const ADS = [
+        { text: "📢 Ótica São Miguel! Qualidade em armações e lentes especiais.", src: "anuncio1.mp3" },
+        { text: "📢 Promoção especial na Ótica São Miguel! Venha conferir.", src: "anuncio2.mp3" }
     ];
     
     // ==================== FUNÇÕES ====================
@@ -394,46 +426,34 @@
         if (!playerContainer.classList.contains('hide')) {
             if (autoHideTimer) clearTimeout(autoHideTimer);
             autoHideTimer = setTimeout(() => {
-                if (isPlaying) {
+                if (isPlaying || isAdPlaying) {
                     playerContainer.classList.add('hide');
                 }
             }, 4000);
         }
     }
     
-    // Embaralhar array
-    function shuffleArray(array) {
-        const shuffled = [...array];
+    function getRandomTwoSongs() {
+        const shuffled = [...ALL_SONGS];
         for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
-        return shuffled;
+        return [shuffled[0], shuffled[1]];
     }
     
-    // Iniciar playlist embaralhada
-    function initPlaylist() {
-        shuffledSongs = shuffleArray(ALL_SONGS);
-        currentSongIndex = 0;
-        console.log("📀 Playlist embaralhada com", shuffledSongs.length, "músicas");
-        if (shuffledSongs.length > 0) {
-            console.log("Primeira música:", shuffledSongs[0].title);
-        }
-    }
-    
-    // Tocar música atual
-    function playCurrentSong() {
-        if (!isActive) return;
+    function playNextMusicInCycle() {
+        if (!isActive || isAdPlaying) return;
         
-        if (shuffledSongs.length === 0) {
-            console.error("❌ Nenhuma música na playlist!");
-            showNotification("⚠️ Nenhuma música encontrada!", 3000);
-            return;
+        if (!currentMusicList.length || musicCountInCycle >= 2) {
+            console.log("🎵 Carregando novo par de músicas...");
+            currentMusicList = getRandomTwoSongs();
+            musicCountInCycle = 0;
         }
         
-        const song = shuffledSongs[currentSongIndex];
-        console.log(`🎵 Tocando [${currentSongIndex + 1}/${shuffledSongs.length}]: ${song.title}`);
-        showNotification(`🎵 ${song.title}`, 2000);
+        const song = currentMusicList[musicCountInCycle];
+        console.log(`🎵 Tocando música ${musicCountInCycle + 1}/2: ${song.title}`);
+        showNotification(`🎵 ${song.title} - ${song.artist}`, 2500);
         
         audio.src = song.file;
         audio.load();
@@ -441,59 +461,103 @@
         audio.oncanplaythrough = () => {
             audio.play().then(() => {
                 isPlaying = true;
+                isAdPlaying = false;
                 document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
-                console.log("✅ Tocando:", song.title);
             }).catch(err => {
-                console.error("Erro ao tocar:", err);
-                showNotification(`❌ Erro: ${song.title}`, 1500);
-                setTimeout(() => nextTrack(), 1000);
+                console.log("Erro:", err);
+                setTimeout(() => playNextMusicInCycle(), 500);
             });
         };
         
-        audio.onerror = (e) => {
-            console.error(`❌ Erro ao carregar: ${song.file}`);
-            showNotification(`⚠️ Erro ao carregar música`, 1500);
-            setTimeout(() => nextTrack(), 1000);
+        audio.onerror = () => {
+            console.log(`❌ Erro: ${song.file} não encontrado`);
+            showNotification(`⚠️ Arquivo não encontrado: ${song.title}`, 2000);
+            musicCountInCycle++;
+            playNextMusicInCycle();
         };
     }
     
-    // Próxima música
-    function nextTrack() {
+    function playAd() {
         if (!isActive) return;
         
-        currentSongIndex++;
+        isAdPlaying = true;
+        isPlaying = false;
         
-        if (currentSongIndex >= shuffledSongs.length) {
-            console.log("📀 Playlist completa! Embaralhando novamente...");
-            initPlaylist();
-        }
+        const ad = ADS[currentAdIndex % ADS.length];
+        currentAdIndex++;
         
-        playCurrentSong();
+        // Mostra notificação do anúncio
+        const adToast = document.getElementById('adToast');
+        const adToastText = document.getElementById('adToastText');
+        adToastText.innerHTML = `<i class="fas fa-bullhorn"></i> ${ad.text}`;
+        adToast.classList.add('show');
+        
+        console.log(`📢 TOCANDO ANÚNCIO: ${ad.text}`);
+        showNotification(ad.text, 3000);
+        
+        audio.src = ad.src;
+        audio.load();
+        
+        audio.oncanplaythrough = () => {
+            audio.play().catch(err => {
+                console.log("Erro no anúncio:", err);
+                finalizarAnuncio();
+            });
+        };
+        
+        audio.onended = () => {
+            finalizarAnuncio();
+        };
+        
+        audio.onerror = () => {
+            console.log("❌ Arquivo de anúncio não encontrado, pulando...");
+            showNotification("⚠️ Anúncio não encontrado", 1500);
+            finalizarAnuncio();
+        };
     }
     
-    // Música anterior
-    function prevTrack() {
-        if (!isActive) return;
-        
-        currentSongIndex--;
-        if (currentSongIndex < 0) {
-            currentSongIndex = shuffledSongs.length - 1;
-        }
-        playCurrentSong();
+    function finalizarAnuncio() {
+        console.log("✅ ANÚNCIO FINALIZADO! Voltando para músicas...");
+        isAdPlaying = false;
+        document.getElementById('adToast').classList.remove('show');
+        musicCountInCycle = 0;
+        currentMusicList = getRandomTwoSongs();
+        playNextMusicInCycle();
     }
+    
+    audio.onended = () => {
+        if (isAdPlaying) return;
+        
+        if (isActive && isPlaying) {
+            musicCountInCycle++;
+            console.log(`🎵 Música finalizada. Contagem: ${musicCountInCycle}/2`);
+            
+            if (musicCountInCycle >= 2) {
+                console.log("🔁 2 MÚSICAS TOCADAS! INICIANDO ANÚNCIO...");
+                playAd();
+            } else {
+                console.log("🎵 Tocando próxima música...");
+                playNextMusicInCycle();
+            }
+        }
+    };
     
     function pauseMusic() {
         if (audio.src && !audio.paused) {
             audio.pause();
             isPlaying = false;
             document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
-            showNotification("⏸️ Pausado", 1000);
         }
     }
     
     function togglePlayPause() {
         if (!isActive) {
-            showNotification("🔊 Clique no botão verde primeiro!", 2000);
+            showNotification("Clique no botão verde primeiro!", 2000);
+            return;
+        }
+        
+        if (isAdPlaying) {
+            showNotification("Anúncio em execução, aguarde...", 1500);
             return;
         }
         
@@ -504,22 +568,32 @@
                 audio.play().then(() => {
                     isPlaying = true;
                     document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
-                    showNotification("▶️ Reproduzindo", 1000);
                 }).catch(() => {
-                    playCurrentSong();
+                    playNextMusicInCycle();
                 });
             } else {
-                playCurrentSong();
+                playNextMusicInCycle();
             }
         }
     }
     
-    audio.onended = () => {
-        if (isActive && isPlaying) {
-            console.log("⏭️ Música finalizada, próxima...");
-            nextTrack();
+    function nextTrack() {
+        if (!isActive || isAdPlaying) return;
+        
+        if (isPlaying) {
+            audio.pause();
+            musicCountInCycle++;
+            if (musicCountInCycle >= 2) {
+                playAd();
+            } else {
+                playNextMusicInCycle();
+            }
         }
-    };
+    }
+    
+    function prevTrack() {
+        nextTrack();
+    }
     
     // ==================== INICIAR SISTEMA ====================
     async function startSystem() {
@@ -528,45 +602,43 @@
         showNotification("🎬 Iniciando sistema...", 2000);
         
         try {
-            // ATIVA O ÁUDIO NO CELULAR (IMPORTANTE!)
+            // Ativa áudio para dispositivos móveis
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             const ctx = new AudioContext();
-            
-            // Pequeno som para ativar o áudio
             const oscillator = ctx.createOscillator();
             const gain = ctx.createGain();
             oscillator.connect(gain);
             gain.connect(ctx.destination);
-            gain.gain.value = 0.001; // Volume bem baixo
+            gain.gain.value = 0;
             oscillator.start();
-            oscillator.stop(ctx.currentTime + 0.05);
-            
+            oscillator.stop(ctx.currentTime + 0.1);
             await ctx.resume();
             setTimeout(() => ctx.close(), 200);
             
             isActive = true;
             document.getElementById('activateBtn').style.display = 'none';
             
-            // Tenta tela cheia
+            // Tela cheia
             try {
                 await document.documentElement.requestFullscreen();
-            } catch(e) {
-                console.log("Fullscreen não suportado");
-            }
+            } catch(e) {}
             
-            // Inicia a playlist
-            initPlaylist();
+            // Reseta contadores
+            musicCountInCycle = 0;
+            currentAdIndex = 0;
+            currentMusicList = [];
             
-            // Inicia o vídeo
+            // Inicia vídeo
             const video = document.getElementById('bgVideo');
             video.play().catch(e => console.log("Vídeo:", e));
             
-            // Começa a tocar
+            // Começa com ANÚNCIO primeiro
             setTimeout(() => {
-                playCurrentSong();
+                console.log("🎬 INICIANDO COM ANÚNCIO...");
+                playAd();
             }, 500);
             
-            showNotification(`🎬 Sistema OK! ${ALL_SONGS.length} músicas`, 3000);
+            showNotification("🔊 ANÚNCIO → 2 MÚSICAS → ANÚNCIO...", 3000);
             console.log("✅ SISTEMA INICIADO!");
             console.log("📋 Total de músicas:", ALL_SONGS.length);
             
@@ -623,7 +695,7 @@
     
     document.addEventListener('touchend', (e) => {
         const diff = e.changedTouches[0].screenX - touchStartX;
-        if (Math.abs(diff) > 50 && isActive) {
+        if (Math.abs(diff) > 50 && isActive && !isAdPlaying) {
             if (diff > 0) prevTrack();
             else nextTrack();
         }
@@ -685,7 +757,8 @@
     const video = document.getElementById('bgVideo');
     video.play().catch(e => console.log("Aguardando interação"));
     
-    console.log("✅ SISTEMA PRONTO - Clique no botão VERDE!");
+    console.log("✅ SISTEMA PRONTO - LÓGICA: ANÚNCIO → 2 MÚSICAS → ANÚNCIO...");
+    console.log("📋 Suas músicas:", ALL_SONGS.map(s => s.title));
 </script>
 </body>
 </html>
